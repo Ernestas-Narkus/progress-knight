@@ -1039,6 +1039,7 @@ createData(gameData.taskData, jobBaseData)
 createData(gameData.taskData, skillBaseData)
 createData(gameData.itemData, itemBaseData) 
 
+document.getElementById("body").classList.add("dark")
 gameData.currentJob = gameData.taskData["Beggar"]
 gameData.currentSkill = gameData.taskData["Concentration"]
 gameData.currentProperty = gameData.itemData["Homeless"]

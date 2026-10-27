@@ -1,37 +1,43 @@
 /* Theme tokens: light "cloud" theme (default). dark.css overrides them for "twilight". */
+/* Theme tokens: "paper" light theme. dark.css overrides them with the "ink" theme. */
 :root {
-    --text: #26304a;
-    --muted: #5a6585;
-    --panel: rgba(255, 255, 255, 0.74);
-    --border: #b3c1e3;
-    --btn-bg: rgba(255, 255, 255, 0.9);
-    --btn-hover: #e3e9f9;
-    --tab-on: #8ea4dc;
-    --tab-on-text: #121b36;
-    --bar-track: #dde5f6;
-    --bar-fill: #aebfec;
-    --bar-text: #1d2742;
-    --current: #f2c879;
-    --active: #5d78c9;
-    --danger: #b3466a;
-    --tip-bg: #2b3553;
-    --tip-text: #f3f5ff;
-    --shadow: 0 10px 34px rgba(88, 108, 168, 0.16);
-    --c-net: #2a6fb0;
-    --c-income: #2a7352;
-    --c-expense: #b3466a;
-    --c-happy: #3f67c4;
-    --c-warp: #7a4fc4;
-    --c-evil: #a52f63;
-    --coin-p: #2c7f9c;
-    --coin-g: #826000;
-    --coin-s: #66708a;
-    --coin-c: #965632;
-    --sky:
-        radial-gradient(55% 38% at 12% 8%, rgba(255, 255, 255, 0.95), transparent 70%),
-        radial-gradient(45% 32% at 88% 18%, rgba(255, 255, 255, 0.85), transparent 70%),
-        radial-gradient(70% 36% at 55% 100%, rgba(255, 255, 255, 0.75), transparent 70%),
-        linear-gradient(180deg, #c9dcf6 0%, #e0dcf3 55%, #f5e8f0 100%);
+    --text: #2a2d2b;
+    --muted: #5d5f55;
+    --panel: #f4f0e4;
+    --border: #c2baa3;
+    --btn-bg: #ece6d4;
+    --btn-hover: #ded6bf;
+    --tab-on: #35695a;
+    --tab-on-text: #f6f3ea;
+    --bar-track: #ddd5bf;
+    --bar-fill: #9cc2b2;
+    --bar-text: #1f2624;
+    --current: #dfbd69;
+    --active: #35695a;
+    --danger: #a8392f;
+    --tip-bg: #23292a;
+    --tip-text: #ece8da;
+    --c-net: #2c6a80;
+    --c-income: #2b6b4c;
+    --c-expense: #a8392f;
+    --c-happy: #3a5f8f;
+    --c-warp: #6b4a99;
+    --c-evil: #a8302a;
+    --coin-p: #2b6f7c;
+    --coin-g: #7a5a0a;
+    --coin-s: #5f645c;
+    --coin-c: #8a4f28;
+    --sky: #e9e4d6;
+    /* section header tints (shared by both themes, dark text on top) */
+    --h-common: #a3b899;
+    --h-military: #c78d80;
+    --h-arcane: #9fb0bf;
+    --h-fundamentals: #b9b49a;
+    --h-combat: #c9a27a;
+    --h-magic: #a79bbd;
+    --h-dark: #a08a96;
+    --h-properties: #93b5b0;
+    --h-misc: #bf9fa0;
 }
 
 html, body {
@@ -40,24 +46,22 @@ html, body {
 }
 
 body {
-    background: var(--sky);
-    background-attachment: fixed;
+    background-color: var(--sky);
     color: var(--text);
     min-height: 100vh;
 }
 
 h1 {
-    font-weight: 300;
-    letter-spacing: 0.04em;
-    text-shadow: 0 0 22px rgba(255, 255, 255, 0.8);
+    font-family: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "STSong", Georgia, serif;
+    font-weight: 600;
+    letter-spacing: 0.12em;
 }
 
 .panel {
     background-color: var(--panel);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    /* hairline drawn as a shadow so it takes up no layout space (the tab bar is exactly 40px tall) */
+    box-shadow: 0 0 0 1px var(--border);
+    border-radius: 4px;
 }
 
 .w3-bar-item { width: 100px; height: 40px; text-align: center; }
@@ -75,14 +79,14 @@ td { vertical-align: middle !important; }
     background-color: var(--btn-bg);
     color: var(--text);
     border: 1px solid var(--border) !important;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 input[type="text"] {
     background-color: var(--btn-bg);
     color: var(--text);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 3px;
     padding: 0 8px;
 }
 input[type="checkbox"] { accent-color: var(--active); }
@@ -102,7 +106,7 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 .progress-bar {
     position: relative;
     background-color: var(--bar-track);
-    border-radius: 6px;
+    border-radius: 3px;
     overflow: hidden;
     cursor: pointer;
     width: 200px;
@@ -120,7 +124,16 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 .hidden, .hiddenTask { display: none !important; }
 
 /* Table section headers: pastel tints with dark text */
-.headerRow, .headerRow th { color: #1f2940; }
+.headerRow, .headerRow th { color: #1b2120; }
+.headerRow.Commonwork { background-color: var(--h-common) !important; }
+.headerRow.Military { background-color: var(--h-military) !important; }
+.headerRow.TheArcaneAssociation { background-color: var(--h-arcane) !important; }
+.headerRow.Fundamentals { background-color: var(--h-fundamentals) !important; }
+.headerRow.Combat { background-color: var(--h-combat) !important; }
+.headerRow.Magic { background-color: var(--h-magic) !important; }
+.headerRow.Darkmagic { background-color: var(--h-dark) !important; }
+.headerRow.Properties { background-color: var(--h-properties) !important; }
+.headerRow.Misc { background-color: var(--h-misc) !important; }
 
 /* Shop items */
 .item-button {
@@ -132,8 +145,8 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 .item-button:hover { cursor: pointer; background-color: var(--btn-hover); }
 .item-button:disabled { opacity: 0.5; cursor: not-allowed; }
 .item-button:disabled:hover { background-color: var(--btn-bg); }
-.active { background-color: var(--btn-bg); box-shadow: inset 0 0 0 1px var(--border); }
-.active.on { background-color: var(--active); box-shadow: none; }
+.active { background-color: var(--btn-bg); }
+.active.on { background-color: var(--active); }
 
 .scroll { overflow-y: auto; }
 
@@ -145,7 +158,7 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
     background-color: var(--tip-bg);
     color: var(--tip-text);
     text-align: center;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 10px 8px;
     font-weight: 400;
     position: absolute;
@@ -155,7 +168,7 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
     opacity: 0;
     transition: opacity 0.5s;
 }
-.tooltip:hover .tooltipText { visibility: visible; opacity: 0.96; }
+.tooltip:hover .tooltipText { visibility: visible; opacity: 1; }
 
 .sidebar-element { margin-bottom: 16px; }
 .slidecontainer { width: 100%; }
