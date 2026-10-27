@@ -36,33 +36,15 @@
                 </span>
 
                 <div style="font-size: large" id="coinDisplay">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
+<span></span>
                 </div>
-                <div class="muted">Balance (in coins)</div>
+                <div class="muted">Balance</div>
 
-                <ul class="sidebar-element" style="padding-left: 20px;">
-                    <li><span class="c-net">Net/day: </span ><b id="signDisplay"></b><span id="netDisplay">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span></li>
-                    <li><span class="c-income">Income/day: </span><span id="incomeDisplay">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span></li>
-                    <li><span class="c-expense">Expense/day: </span><span id="expenseDisplay">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span></li>
-                </ul>
+                <div class="sidebar-element">
+                    <div><span class="c-income">Income/day: </span><span id="incomeDisplay"><span></span></span></div>
+                    <div><span class="c-expense">Expense/day: </span><span id="expenseDisplay"><span></span></span></div>
+                    <div class="net-line"><span class="c-net">Net/day: </span><b id="signDisplay"></b><span id="netDisplay"><span></span></span></div>
+                </div>
 
                 <span id="quickTaskDisplay">
                     <div style="width: 100%" class="small-margin inline job progress-bar progressBar">
@@ -78,7 +60,7 @@
                     <div class="sidebar-element muted">Current skill</div>
                 </span>
 
-                <div style="font-size: large"><span class="c-happy">Happiness: </span><span id="happinessDisplay"></span></div>
+                <div style="font-size: large"><span class="c-happy">State of Mind: </span><span id="happinessDisplay"></span></div>
                 <div class="sidebar-element muted">Affects all xp gain</div>
 
                 <span id="evilInfo">
@@ -117,22 +99,24 @@
             <div class="panel w3-margin-top w3-padding">
                 <template class="headerRowTaskTemplate">
                     <tr>
-                        <th class="category" style="width: 250px">Job</th>
+                        <th class="category">Job</th>
                         <th class="levelHeader">Level</th>
                         <th class="valueType">Value type</th>
                         <th>Xp/day</th>
                         <th>Xp left</th>
                         <th class="maxLevel">Max level</th>
                         <th class="skipSkill">Skip</th>
+                        <th class="collapseCell"><button type="button" class="collapse-btn"></button></th>
                     </tr>
                 </template>
 
                 <template class="headerRowItemTemplate">
                     <tr>
-                        <th class="category" style="width: 250px">Item</th>
-                        <th style="width: 100px">Active</th>
-                        <th style="width: 250px">Effect</th>
+                        <th class="category">Item</th>
+                        <th>Active</th>
+                        <th>Effect</th>
                         <th>Expense/day</th>
+                        <th class="collapseCell"><button type="button" class="collapse-btn"></button></th>
                     </tr>
                 </template>
 
@@ -149,10 +133,7 @@
                         <td class="value">
                             <div class="effect"></div>
                             <div class="income">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
+<span></span>
                             </div>
                         </td>
                         <td class="xpGain">Xp/day</td>
@@ -181,10 +162,7 @@
                         </td>
                         <td class="effect"></td>
                         <td class="expense">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
+<span></span>
                         </td>
                     </tr>
                 </template>
@@ -195,10 +173,7 @@
                         <span class="value" colspan=5>
                             <span class="levels"></span>
                             <span class="coins">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
+<span></span>
                             </span>
                             <span class="evil c-evil"></span>
                         </span>
@@ -240,7 +215,7 @@
                                 to see what happens.
                             </div>
                             <i class="muted">
-                                By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and coins.
+                                By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and Spirit Stones.
                                 However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 + the max level of the skill or job / 10.</b>
                                 This means you will learn everything again much more quickly than you did in your previous life. <span class="c-evil">
                                 Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...</span>
@@ -255,7 +230,7 @@
                                 A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made it this far... Are you ready to embrace evil?"
                             </div>
                             <i class="c-evil">
-                                If you decide to embrace evil, all of your levels, coins and even max levels will be reset.
+                                If you decide to embrace evil, all of your levels, Spirit Stones and even max levels will be reset.
                                 You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
                                 <b><span id="evilGainDisplay"></span> evil</b>, which will heavily impact your future lives.
                             </i>

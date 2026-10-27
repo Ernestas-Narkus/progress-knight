@@ -92,7 +92,7 @@ class Item {
 
     getEffectDescription() {
         var description = this.baseData.description
-        if (itemCategories["Properties"].includes(this.name)) description = "Happiness"
+        if (itemCategories["Properties"].includes(this.name)) description = "State of Mind"
         var text = "x" + this.baseData.effect.toFixed(1) + " " + description
         return text
     }

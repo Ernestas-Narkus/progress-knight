@@ -23,10 +23,7 @@
     --c-happy: #3a5f8f;
     --c-warp: #6b4a99;
     --c-evil: #a8302a;
-    --coin-p: #2b6f7c;
-    --coin-g: #7a5a0a;
-    --coin-s: #5f645c;
-    --coin-c: #8a4f28;
+    --stone: #1d6a73;
     --sky: #e9e4d6;
     /* section header tints (shared by both themes, dark text on top) */
     --h-common: #a3b899;
@@ -108,7 +105,8 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
     background-color: var(--bar-track);
     border-radius: 3px;
     cursor: pointer;
-    width: 270px;
+    width: 100%;
+    max-width: 240px;
 }
 .progress-fill { height: 30px; background-color: var(--bar-fill); border-radius: 3px; }
 .progress-text {
@@ -141,6 +139,7 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 .item-button {
     text-align: center;
     width: 200px;
+    max-width: 100%;
     height: 40px;
     padding: 8px;
 }
@@ -205,3 +204,37 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 .rank { padding: 3px 8px; border-left: 3px solid transparent; color: var(--muted); }
 .rank.reached { color: var(--text); border-left-color: var(--border); }
 .rank.current { color: var(--text); font-weight: 600; background-color: var(--btn-bg); border-left-color: var(--active); }
+
+/* Net income reads as the total under income and expense */
+.net-line { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; }
+
+/* Collapsible categories */
+.collapsed { display: none !important; }
+.collapseCell { width: 44px; text-align: right; }
+.collapse-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    line-height: 1;
+    background: transparent;
+    color: #1b2120;
+    border: 1px solid rgba(27, 33, 32, 0.5);
+    border-radius: 4px;
+    cursor: pointer;
+}
+.collapse-btn:hover { background-color: rgba(27, 33, 32, 0.14); }
+
+/* Fixed table columns: header positions never depend on which rows are visible or collapsed.
+   The first column (name) takes whatever width is left over. */
+#jobTable, #skillTable, #itemTable { table-layout: fixed; }
+#jobTable .headerRow th:nth-child(2), #skillTable .headerRow th:nth-child(2) { width: 88px; }   /* Level / Reputation */
+#jobTable .headerRow th:nth-child(3), #skillTable .headerRow th:nth-child(3) { width: 126px; }  /* Income / Effect */
+#jobTable .headerRow th:nth-child(4), #skillTable .headerRow th:nth-child(4) { width: 62px; }   /* Xp/day */
+#jobTable .headerRow th:nth-child(5), #skillTable .headerRow th:nth-child(5) { width: 72px; }   /* Xp left */
+#jobTable .headerRow th:nth-child(6), #skillTable .headerRow th:nth-child(6) { width: 70px; }   /* Max level */
+#jobTable .headerRow th:nth-child(7), #skillTable .headerRow th:nth-child(7) { width: 46px; }   /* Skip */
+#jobTable .headerRow th:nth-child(8), #skillTable .headerRow th:nth-child(8) { width: 44px; }   /* Collapse */
+#itemTable .headerRow th:nth-child(2) { width: 80px; }   /* Active */
+#itemTable .headerRow th:nth-child(3) { width: 190px; }  /* Effect */
+#itemTable .headerRow th:nth-child(4) { width: 150px; }  /* Expense/day */
+#itemTable .headerRow th:nth-child(5) { width: 44px; }   /* Collapse */

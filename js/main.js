@@ -3,6 +3,7 @@ var gameData = {
     itemData: {},
 
     coins: 0,
+    collapsedCategories: {},
     days: 365 * 14,
     evil: 0,
     paused: false,
@@ -90,7 +91,7 @@ const skillBaseData = {
     "Concentration": {name: "Concentration", maxXp: 100, effect: 0.01, description: "Skill xp"},
     "Productivity": {name: "Productivity", maxXp: 100, effect: 0.01, description: "Job xp"},
     "Bargaining": {name: "Bargaining", maxXp: 100, effect: -0.01, description: "Expenses"},
-    "Meditation": {name: "Meditation", maxXp: 100, effect: 0.01, description: "Happiness"},
+    "Meditation": {name: "Meditation", maxXp: 100, effect: 0.01, description: "State of Mind"},
 
     "Strength": {name: "Strength", maxXp: 100, effect: 0.01, description: "Martial pay"},
     "Battle tactics": {name: "Battle tactics", maxXp: 100, effect: 0.01, description: "Martial xp"},
@@ -124,7 +125,7 @@ const itemBaseData = {
     "Dumbbells": {name: "Dumbbells", expense: 50, effect: 1.5, description: "Strength xp"},
     "Personal squire": {name: "Personal squire", expense: 200, effect: 2, description: "Job xp"},
     "Steel longsword": {name: "Steel longsword", expense: 1000, effect: 2, description: "Martial xp"},
-    "Butler": {name: "Butler", expense: 7500, effect: 1.5, description: "Happiness"},
+    "Butler": {name: "Butler", expense: 7500, effect: 1.5, description: "State of Mind"},
     "Sapphire charm": {name: "Sapphire charm", expense: 50000, effect: 3, description: "Magic xp"},
     "Study desk": {name: "Study desk", expense: 1000000, effect: 2, description: "Skill xp"},
     "Library": {name: "Library", expense: 10000000, effect: 1.5, description: "Skill xp"},
@@ -161,9 +162,9 @@ const headerRowColors = {
 }
 
 const tooltips = {
-    "Beggar": "Struggle day and night for a couple of copper coins. It feels like you are at the brink of death each day.",
+    "Beggar": "Struggle day and night for a couple of Spirit Stones. It feels like you are at the brink of death each day.",
     "Farmer": "Plow the fields and grow the crops. It's not much but it's honest work.",
-    "Fisherman": "Reel in various fish and sell them for a handful of coins. A relaxing but still a poor paying job.",
+    "Fisherman": "Reel in various fish and sell them for a handful of Spirit Stones. A relaxing but still a poor paying job.",
     "Miner": "Delve into dangerous caverns and mine valuable ores. The pay is quite meager compared to the risk involved.",
     "Blacksmith": "Smelt ores and carefully forge weapons for the military. A respectable and OK paying commoner job.",
     "Merchant": "Travel from town to town, bartering fine goods. The job pays decently well and is a lot less manually-intensive.",
@@ -185,7 +186,7 @@ const tooltips = {
     "Concentration": "Improve your learning speed through practising intense concentration activities.",
     "Productivity": "Learn to procrastinate less at work and receive more job experience per day.",
     "Bargaining": "Study the tricks of the trade and persuasive skills to lower any type of expense.",
-    "Meditation": "Fill your mind with peace and tranquility to tap into greater happiness from within.",
+    "Meditation": "Fill your mind with peace and tranquility to reach a calmer state of mind.",
 
     "Strength": "Condition your body and strength through harsh training. Stronger individuals are paid more in the military.",
     "Battle tactics": "Create and revise battle strategies, improving experience gained in the military.",
@@ -201,7 +202,7 @@ const tooltips = {
     "Intimidation": "Learn to emit a devilish aura which strikes extreme fear into other merchants, forcing them to give you heavy discounts.",
     "Demon training": "A mere human body is too feeble and weak to withstand evil. Train with forbidden methods to slowly manifest into a demon, capable of absorbing knowledge rapidly.",
     "Blood meditation": "Grow and culture the evil within you through the sacrifise of other living beings, drastically increasing evil gain.",
-    "Demon's wealth": "Through the means of dark magic, multiply the raw matter of the coins you receive from your job.",
+    "Demon's wealth": "Through the means of dark magic, multiply the raw matter of the Spirit Stones you receive from your job.",
 
     "Homeless": "Sleep on the uncomfortable, filthy streets while almost freezing to death every night. It cannot get any worse than this.",
     "Tent": "A thin sheet of tattered cloth held up by a couple of feeble, wooden sticks. Horrible living conditions but at least you have a roof over your head.",
@@ -256,6 +257,27 @@ function updateRankList(listId, displayId, ranks, rankIndex, emptyText) {
 function updateRanks() {
     updateRankList("martialRankList", "martialRankDisplay", martialArtsRanks, gameData.martialRank, "Untrained")
     updateRankList("cultivationRankList", "cultivationRankDisplay", cultivationRanks, gameData.cultivationRank, "Mortal")
+}
+
+function setCategoryCollapsed(categoryName, collapsed) {
+    gameData.collapsedCategories[categoryName] = collapsed
+    var rows = document.querySelectorAll("[data-category]")
+    for (var i = 0; i < rows.length; i++) {
+        if (rows[i].dataset.category == categoryName) rows[i].classList.toggle("collapsed", collapsed)
+    }
+    var headerRow = document.querySelector(".headerRow." + removeSpaces(categoryName))
+    var button = headerRow.getElementsByClassName("collapse-btn")[0]
+    button.textContent = collapsed ? "\u25B8" : "\u25BE"
+    button.setAttribute("aria-expanded", String(!collapsed))
+    button.setAttribute("aria-label", (collapsed ? "Expand " : "Collapse ") + categoryName)
+}
+
+function applyCollapsedCategories() {
+    [jobCategories, skillCategories, itemCategories].forEach(function(categories) {
+        for (var categoryName in categories) {
+            setCategoryCollapsed(categoryName, !!gameData.collapsedCategories[categoryName])
+        }
+    })
 }
 
 function getBaseLog(x, y) {
@@ -476,6 +498,7 @@ function createRequiredRow(categoryName) {
     requiredRow.classList.add("requiredRow")
     requiredRow.classList.add(removeSpaces(categoryName))
     requiredRow.id = categoryName
+    requiredRow.dataset.category = categoryName
     return requiredRow
 }
 
@@ -490,6 +513,9 @@ function createHeaderRow(templates, categoryType, categoryName) {
     headerRow.style.backgroundColor = headerRowColors[categoryName]
     headerRow.classList.add(removeSpaces(categoryName))
     headerRow.classList.add("headerRow")
+    headerRow.getElementsByClassName("collapse-btn")[0].onclick = function() {
+        setCategoryCollapsed(categoryName, !gameData.collapsedCategories[categoryName])
+    }
     
     return headerRow
 }
@@ -499,6 +525,7 @@ function createRow(templates, name, categoryName, categoryType) {
     row.getElementsByClassName("name")[0].textContent = name
     row.getElementsByClassName("tooltipText")[0].textContent = tooltips[name]
     row.id = "row " + name
+    row.dataset.category = categoryName
     if (categoryType != itemCategories) {
         row.getElementsByClassName("progressBar")[0].onclick = function() {setTask(name)}
     } else {
@@ -627,7 +654,7 @@ function updateTaskRows() {
         valueElement.getElementsByClassName("effect")[0].style.display = task instanceof Skill
 
         var skipSkillElement = row.getElementsByClassName("skipSkill")[0]
-        skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "block" : "none"
+        skipSkillElement.style.display = task instanceof Skill && autoLearnElement.checked ? "table-cell" : "none"
 
         if (task instanceof Job) {
             formatCoins(task.getIncome(), valueElement.getElementsByClassName("income")[0])
@@ -657,7 +684,7 @@ function updateHeaderRows(categories) {
         var maxLevelElement = headerRow.getElementsByClassName("maxLevel")[0]
         gameData.rebirthOneCount > 0 ? maxLevelElement.classList.remove("hidden") : maxLevelElement.classList.add("hidden")
         var skipSkillElement = headerRow.getElementsByClassName("skipSkill")[0]
-        skipSkillElement.style.display = categories == skillCategories && autoLearnElement.checked ? "block" : "none"
+        skipSkillElement.style.display = categories == skillCategories && autoLearnElement.checked ? "table-cell" : "none"
     }
 }
 
@@ -848,27 +875,10 @@ function format(number) {
 }
 
 function formatCoins(coins, element) {
-    var tiers = ["p", "g", "s"]
-    var colors = {
-        "p": "var(--coin-p)",
-        "g": "var(--coin-g)",
-        "s": "var(--coin-s)",
-        "c": "var(--coin-c)"
-    }
-    var leftOver = coins
-    var i = 0
-    for (tier of tiers) {
-        var x = Math.floor(leftOver / Math.pow(10, (tiers.length - i) * 2))
-        var leftOver = Math.floor(leftOver - x * Math.pow(10, (tiers.length - i) * 2))
-        var text = format(String(x)) + tier + " "
-        element.children[i].textContent = x > 0 ? text : ""
-        element.children[i].style.color = colors[tier]
-        i += 1
-    }
-    if (leftOver == 0 && coins > 0) {element.children[3].textContent = ""; return}
-    var text = String(Math.floor(leftOver)) + "c"
-    element.children[3].textContent = text
-    element.children[3].style.color = colors["c"]
+    var amount = Math.floor(coins)
+    var span = element.children[0]
+    span.textContent = format(amount) + (amount == 1 ? " Spirit Stone" : " Spirit Stones")
+    span.style.color = "var(--stone)"
 }
 
 function getTaskElement(taskName) {
@@ -1202,6 +1212,7 @@ for (key in gameData.requirements) {
 }
 
 loadGameData()
+applyCollapsedCategories()
 
 setCustomEffects()
 addMultipliers()
