@@ -107,17 +107,19 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
     position: relative;
     background-color: var(--bar-track);
     border-radius: 3px;
-    overflow: hidden;
     cursor: pointer;
-    width: 200px;
+    width: 270px;
 }
-.progress-fill { height: 30px; background-color: var(--bar-fill); }
+.progress-fill { height: 30px; background-color: var(--bar-fill); border-radius: 3px; }
 .progress-text {
     position: absolute;
-    top: 0; bottom: 0;
+    top: 0; bottom: 0; left: 0; right: 0;
     padding: 5px;
     color: var(--bar-text);
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .current { background-color: var(--current) !important; }
 
@@ -125,9 +127,9 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 
 /* Table section headers: pastel tints with dark text */
 .headerRow, .headerRow th { color: #1b2120; }
-.headerRow.Commonwork { background-color: var(--h-common) !important; }
-.headerRow.Military { background-color: var(--h-military) !important; }
-.headerRow.TheArcaneAssociation { background-color: var(--h-arcane) !important; }
+.headerRow.MortalVillage { background-color: var(--h-common) !important; }
+.headerRow.MartialArtsHall { background-color: var(--h-military) !important; }
+.headerRow.Sect { background-color: var(--h-arcane) !important; }
 .headerRow.Fundamentals { background-color: var(--h-fundamentals) !important; }
 .headerRow.Combat { background-color: var(--h-combat) !important; }
 .headerRow.Magic { background-color: var(--h-magic) !important; }
@@ -188,3 +190,18 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 
 .inline { display: inline-block; }
 .small-margin { margin-bottom: 2px; }
+
+/* Three-column layout: sidebar | tabs | cultivation */
+.layout { display: flex; gap: 16px; align-items: flex-start; }
+.side-panel { width: 290px; flex: none; }
+.center { flex: 1; min-width: 640px; }
+.tab-bar { height: 40px; }
+
+/* Rank ladders */
+.rank-group { margin-bottom: 24px; }
+.rank-title { font-size: large; }
+.rank-current { color: var(--active); font-weight: 600; min-height: 1.5em; }
+.rank-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.rank { padding: 3px 8px; border-left: 3px solid transparent; color: var(--muted); }
+.rank.reached { color: var(--text); border-left-color: var(--border); }
+.rank.current { color: var(--text); font-weight: 600; background-color: var(--btn-bg); border-left-color: var(--active); }

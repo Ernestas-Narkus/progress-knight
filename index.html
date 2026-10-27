@@ -11,8 +11,8 @@
 <body id="body">
     <div class="w3-margin"> 
         <h1>Progress Knight</h1>
-        <div style="width: 1220px; height: 600px"> 
-            <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
+        <div class="layout">
+            <div class="panel w3-padding side-panel">
                 <span id="deathText">
                     <div class="c-expense" style="font-size: large">Age has caught up to you</div>
                     <div class="sidebar-element muted">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
@@ -65,13 +65,13 @@
                 </ul>
 
                 <span id="quickTaskDisplay">
-                    <div style="width: 230px" class="small-margin inline job progress-bar progressBar">
+                    <div style="width: 100%" class="small-margin inline job progress-bar progressBar">
                         <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>
                     </div>
                     <div class="sidebar-element muted">Current job</div>
 
-                    <div style="width: 230px" class="small-margin skill progress-bar progressBar">
+                    <div style="width: 100%" class="small-margin skill progress-bar progressBar">
                         <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>              
                     </div>
@@ -105,19 +105,20 @@
                 </span>
             </div>
 
-            <div class="panel w3-margin-left" style="width: 900px; height: 40px; float: left">
-                <div class="w3-button w3-bar-item tabButton" id="jobTabButton" onClick="setTab(this, 'jobs')">Jobs</div>
+            <div class="center">
+            <div class="panel tab-bar">
+                <div class="w3-button w3-bar-item tabButton" id="jobTabButton" onClick="setTab(this, 'jobs')">Map</div>
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'skills')">Skills</div>
-                <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Shop</div>
-                <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Amulet</div>
+                <div class="w3-button w3-bar-item tabButton" id="shopTabButton" onClick="setTab(this, 'shop')">Market</div>
+                <div class="w3-button w3-bar-item tabButton" id="rebirthTabButton" onClick="setTab(this, 'rebirth')">Story</div>
                 <div class="w3-button w3-bar-item tabButton" onClick="setTab(this, 'settings')" style="float: right">Settings</div>
             </div>
 
-            <div class="panel w3-margin-left w3-margin-top w3-padding" style="width: 900px; height: auto; float: left">
+            <div class="panel w3-margin-top w3-padding">
                 <template class="headerRowTaskTemplate">
                     <tr>
                         <th class="category" style="width: 250px">Job</th>
-                        <th>Level</th>
+                        <th class="levelHeader">Level</th>
                         <th class="valueType">Value type</th>
                         <th>Xp/day</th>
                         <th>Xp left</th>
@@ -290,6 +291,26 @@
                             <button class="w3-button button w3-red" onClick="resetGameData()">Reset</button>
                         </li>
                     </ul>
+                </div>
+            </div>
+            </div>
+
+            <div class="panel w3-padding side-panel" id="cultivationPanel">
+                <div class="rank-group">
+                    <div class="rank-title">Martial arts</div>
+                    <div class="rank-current" id="martialRankDisplay"></div>
+                    <ul class="rank-list" id="martialRankList"></ul>
+                </div>
+
+                <div class="rank-group">
+                    <div class="rank-title">Cultivation</div>
+                    <div class="rank-current" id="cultivationRankDisplay"></div>
+                    <ul class="rank-list" id="cultivationRankList"></ul>
+                </div>
+
+                <div class="rank-group">
+                    <div class="rank-title">Roots</div>
+                    <div class="muted">Not yet revealed</div>
                 </div>
             </div>
         </div>

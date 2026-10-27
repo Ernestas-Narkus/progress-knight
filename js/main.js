@@ -8,6 +8,9 @@ var gameData = {
     paused: false,
     timeWarpingEnabled: true,
 
+    martialRank: -1,
+    cultivationRank: -1,
+
     rebirthOneCount: 0,
     rebirthTwoCount: 0,
 
@@ -32,6 +35,32 @@ const baseGameSpeed = 4
 
 const permanentUnlocks = ["Scheduling", "Shop", "Automation", "Quick task display"]
 
+// Rank ladders. gameData.martialRank / cultivationRank hold the index of the current rank (-1 = none yet).
+// Future jobs, skills and areas can unlock from these through RankRequirement (see classes.js).
+const martialArtsRanks = [
+    "Martial Apprentice",
+    "Martial Artist",
+    "Senior Martial Artist",
+    "Third Rate",
+    "Second Rate",
+    "First Rate",
+    "Peak",
+    "Enlightenment",
+]
+
+const cultivationRanks = [
+    "Qi Training",
+    "Foundation Establishment",
+    "Core Formation",
+    "Nascent Soul",
+    "Soul Transformation",
+    "Void Refinement",
+    "Body Integration",
+    "Mahayana",
+    "Tribulation Transcendence",
+    "True Immortal",
+]
+
 const jobBaseData = {
     "Beggar": {name: "Beggar", maxXp: 50, income: 5},
     "Farmer": {name: "Farmer", maxXp: 100, income: 9},
@@ -40,21 +69,21 @@ const jobBaseData = {
     "Blacksmith": {name: "Blacksmith", maxXp: 800, income: 80},
     "Merchant": {name: "Merchant", maxXp: 1600, income: 150},
 
-    "Squire": {name: "Squire", maxXp: 100, income: 5},
-    "Footman": {name: "Footman", maxXp: 1000, income: 50},
-    "Veteran footman": {name: "Veteran footman", maxXp: 10000, income: 120},
-    "Knight": {name: "Knight", maxXp: 100000, income: 300},
-    "Veteran knight": {name: "Veteran knight", maxXp: 1000000, income: 1000},
-    "Elite knight": {name: "Elite knight", maxXp: 7500000, income: 3000},
-    "Holy knight": {name: "Holy knight", maxXp: 40000000, income: 15000},
-    "Legendary knight": {name: "Legendary knight", maxXp: 150000000, income: 50000},
+    "Sweeper": {name: "Sweeper", maxXp: 100, income: 5},
+    "Training Partner": {name: "Training Partner", maxXp: 1000, income: 50},
+    "Sparring Partner": {name: "Sparring Partner", maxXp: 10000, income: 120},
+    "Hall Guard": {name: "Hall Guard", maxXp: 100000, income: 300},
+    "Junior Martial Instructor": {name: "Junior Martial Instructor", maxXp: 1000000, income: 1000},
+    "Head Martial Instructor": {name: "Head Martial Instructor", maxXp: 7500000, income: 3000},
+    "First Disciple": {name: "First Disciple", maxXp: 40000000, income: 15000},
+    "Dojo Master": {name: "Dojo Master", maxXp: 150000000, income: 50000},
 
-    "Student": {name: "Student", maxXp: 100000, income: 100},
-    "Apprentice mage": {name: "Apprentice mage", maxXp: 1000000, income: 1000},
-    "Mage": {name: "Mage", maxXp: 10000000, income: 7500},
-    "Wizard": {name: "Wizard", maxXp: 100000000, income: 50000},
-    "Master wizard": {name: "Master wizard", maxXp: 10000000000, income: 250000},
-    "Chairman": {name: "Chairman", maxXp: 1000000000000, income: 1000000},
+    "Outer Disciple": {name: "Outer Disciple", maxXp: 100000, income: 100},
+    "Inner Disciple": {name: "Inner Disciple", maxXp: 1000000, income: 1000},
+    "Core Disciple": {name: "Core Disciple", maxXp: 10000000, income: 7500},
+    "Elder": {name: "Elder", maxXp: 100000000, income: 50000},
+    "Grand Elder": {name: "Grand Elder", maxXp: 10000000000, income: 250000},
+    "Sect Master": {name: "Sect Master", maxXp: 1000000000000, income: 1000000},
 }
 
 const skillBaseData = {
@@ -63,11 +92,11 @@ const skillBaseData = {
     "Bargaining": {name: "Bargaining", maxXp: 100, effect: -0.01, description: "Expenses"},
     "Meditation": {name: "Meditation", maxXp: 100, effect: 0.01, description: "Happiness"},
 
-    "Strength": {name: "Strength", maxXp: 100, effect: 0.01, description: "Military pay"},
-    "Battle tactics": {name: "Battle tactics", maxXp: 100, effect: 0.01, description: "Military xp"},
+    "Strength": {name: "Strength", maxXp: 100, effect: 0.01, description: "Martial pay"},
+    "Battle tactics": {name: "Battle tactics", maxXp: 100, effect: 0.01, description: "Martial xp"},
     "Muscle memory": {name: "Muscle memory", maxXp: 100, effect: 0.01, description: "Strength xp"},
 
-    "Mana control": {name: "Mana control", maxXp: 100, effect: 0.01, description: "T.A.A. xp"},
+    "Mana control": {name: "Mana control", maxXp: 100, effect: 0.01, description: "Sect xp"},
     "Immortality": {name: "Immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
     "Time warping": {name: "Time warping", maxXp: 100, effect: 0.01, description: "Gamespeed"},
     "Super immortality": {name: "Super immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
@@ -94,7 +123,7 @@ const itemBaseData = {
     "Book": {name: "Book", expense: 10, effect: 1.5, description: "Skill xp"},
     "Dumbbells": {name: "Dumbbells", expense: 50, effect: 1.5, description: "Strength xp"},
     "Personal squire": {name: "Personal squire", expense: 200, effect: 2, description: "Job xp"},
-    "Steel longsword": {name: "Steel longsword", expense: 1000, effect: 2, description: "Military xp"},
+    "Steel longsword": {name: "Steel longsword", expense: 1000, effect: 2, description: "Martial xp"},
     "Butler": {name: "Butler", expense: 7500, effect: 1.5, description: "Happiness"},
     "Sapphire charm": {name: "Sapphire charm", expense: 50000, effect: 3, description: "Magic xp"},
     "Study desk": {name: "Study desk", expense: 1000000, effect: 2, description: "Skill xp"},
@@ -102,9 +131,9 @@ const itemBaseData = {
 }
 
 const jobCategories = {
-    "Common work": ["Beggar", "Farmer", "Fisherman", "Miner", "Blacksmith", "Merchant"],
-    "Military" : ["Squire", "Footman", "Veteran footman", "Knight", "Veteran knight", "Elite knight", "Holy knight", "Legendary knight"],
-    "The Arcane Association" : ["Student", "Apprentice mage", "Mage", "Wizard", "Master wizard", "Chairman"]
+    "Mortal Village": ["Beggar", "Farmer", "Fisherman", "Miner", "Blacksmith", "Merchant"],
+    "Martial Arts Hall" : ["Sweeper", "Training Partner", "Sparring Partner", "Hall Guard", "Junior Martial Instructor", "Head Martial Instructor", "First Disciple", "Dojo Master"],
+    "Sect" : ["Outer Disciple", "Inner Disciple", "Core Disciple", "Elder", "Grand Elder", "Sect Master"]
 }
 
 const skillCategories = {
@@ -120,9 +149,9 @@ const itemCategories = {
 }
 
 const headerRowColors = {
-    "Common work": "#b6e2d0",
-    "Military": "#f5bccb",
-    "The Arcane Association": "#d3bcf2",
+    "Mortal Village": "#b6e2d0",
+    "Martial Arts Hall": "#f5bccb",
+    "Sect": "#d3bcf2",
     "Fundamentals": "#bccff3",
     "Combat": "#f8d0aa",
     "Magic": "#c7bcf0",
@@ -139,22 +168,20 @@ const tooltips = {
     "Blacksmith": "Smelt ores and carefully forge weapons for the military. A respectable and OK paying commoner job.",
     "Merchant": "Travel from town to town, bartering fine goods. The job pays decently well and is a lot less manually-intensive.",
 
-    "Squire": "Carry around your knight's shield and sword along the battlefield. Very meager pay but the work experience is quite valuable.",
-    "Footman": "Put down your life to battle with enemy soldiers. A courageous, respectable job but you are still worthless in the grand scheme of things.",
-    "Veteran footman": "More experienced and useful than the average footman, take out the enemy forces in battle with your might. The pay is not that bad.",
-    "Knight": "Slash and pierce through enemy soldiers with ease, while covered in steel from head to toe. A decently paying and very respectable job.",
-    "Veteran knight": "Utilising your unmatched combat ability, slaugher enemies effortlessly. Most footmen in the military would never be able to acquire such a well paying job like this.",
-    "Elite knight": "Obliterate squadrons of enemy soldiers in one go with extraordinary proficiency, while equipped with the finest gear. Such a feared unit on the battlefield is paid extremely well.",
-    "Holy knight": "Collapse entire armies in mere seconds with your magically imbued blade. The handful of elite knights who attain this level of power are showered with coins.",
-    "Legendary knight": "Feared worldwide, obliterate entire nations in a blink of an eye. Roughly every century, only one holy knight is worthy of receiving such an esteemed title.",
-
-    "Student": "Study the theory of mana and practice basic spells. There is minor pay to cover living costs, however, this is a necessary stage in becoming a mage.",
-    "Apprentice mage": "Under the supervision of a mage, perform basic spells against enemies in battle. Generous pay will be provided to cover living costs.",
-    "Mage": "Turn the tides of battle through casting intermediate spells and mentor other apprentices. The pay for this particular job is extremely high.",
-    "Wizard": "Utilise advanced spells to ravage and destroy entire legions of enemy soldiers. Only a small percentage of mages deserve to attain this role and are rewarded with an insanely high pay.",
-    "Master wizard": "Blessed with unparalleled talent, perform unbelievable feats with magic at will. It is said that a master wizard has enough destructive power to wipe an empire off the map.",
-    "Chairman": "Spend your days administrating The Arcane Association and investigate the concepts of true immortality. The chairman receives ludicrous amounts of pay daily.",
-
+    "Sweeper": "Placeholder description for Sweeper.",
+    "Training Partner": "Placeholder description for Training Partner.",
+    "Sparring Partner": "Placeholder description for Sparring Partner.",
+    "Hall Guard": "Placeholder description for Hall Guard.",
+    "Junior Martial Instructor": "Placeholder description for Junior Martial Instructor.",
+    "Head Martial Instructor": "Placeholder description for Head Martial Instructor.",
+    "First Disciple": "Placeholder description for First Disciple.",
+    "Dojo Master": "Placeholder description for Dojo Master.",
+    "Outer Disciple": "Placeholder description for Outer Disciple.",
+    "Inner Disciple": "Placeholder description for Inner Disciple.",
+    "Core Disciple": "Placeholder description for Core Disciple.",
+    "Elder": "Placeholder description for Elder.",
+    "Grand Elder": "Placeholder description for Grand Elder.",
+    "Sect Master": "Placeholder description for Sect Master.",
     "Concentration": "Improve your learning speed through practising intense concentration activities.",
     "Productivity": "Learn to procrastinate less at work and receive more job experience per day.",
     "Bargaining": "Study the tricks of the trade and persuasive skills to lower any type of expense.",
@@ -199,6 +226,38 @@ const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
 
 const jobTabButton = document.getElementById("jobTabButton")
 
+function setMartialRank(index) {
+    gameData.martialRank = Math.max(-1, Math.min(index, martialArtsRanks.length - 1))
+}
+
+function setCultivationRank(index) {
+    gameData.cultivationRank = Math.max(-1, Math.min(index, cultivationRanks.length - 1))
+}
+
+function createRankList(listId, ranks) {
+    var list = document.getElementById(listId)
+    ranks.forEach(function(name) {
+        var item = document.createElement("li")
+        item.className = "rank"
+        item.textContent = name
+        list.appendChild(item)
+    })
+}
+
+function updateRankList(listId, displayId, ranks, rankIndex, emptyText) {
+    document.getElementById(displayId).textContent = rankIndex >= 0 ? ranks[rankIndex] : emptyText
+    var items = document.getElementById(listId).children
+    for (var i = 0; i < items.length; i++) {
+        items[i].classList.toggle("reached", i < rankIndex)
+        items[i].classList.toggle("current", i == rankIndex)
+    }
+}
+
+function updateRanks() {
+    updateRankList("martialRankList", "martialRankDisplay", martialArtsRanks, gameData.martialRank, "Untrained")
+    updateRankList("cultivationRankList", "cultivationRankDisplay", cultivationRanks, gameData.cultivationRank, "Mortal")
+}
+
 function getBaseLog(x, y) {
     return Math.log(y) / Math.log(x);
 }
@@ -237,7 +296,7 @@ function addMultipliers() {
             task.xpMultipliers.push(getBindedItemEffect("Library"))
         }
 
-        if (jobCategories["Military"].includes(task.name)) {
+        if (jobCategories["Martial Arts Hall"].includes(task.name)) {
             task.incomeMultipliers.push(getBindedTaskEffect("Strength"))
             task.xpMultipliers.push(getBindedTaskEffect("Battle tactics"))
             task.xpMultipliers.push(getBindedItemEffect("Steel longsword"))
@@ -246,7 +305,7 @@ function addMultipliers() {
             task.xpMultipliers.push(getBindedItemEffect("Dumbbells"))
         } else if (skillCategories["Magic"].includes(task.name)) {
             task.xpMultipliers.push(getBindedItemEffect("Sapphire charm"))
-        } else if (jobCategories["The Arcane Association"].includes(task.name)) {
+        } else if (jobCategories["Sect"].includes(task.name)) {
             task.xpMultipliers.push(getBindedTaskEffect("Mana control"))
         } else if (skillCategories["Dark magic"].includes(task.name)) {
             task.xpMultipliers.push(getEvil)
@@ -423,6 +482,7 @@ function createRequiredRow(categoryName) {
 function createHeaderRow(templates, categoryType, categoryName) {
     var headerRow = templates.headerRow.content.firstElementChild.cloneNode(true)
     headerRow.getElementsByClassName("category")[0].textContent = categoryName
+    if (categoryType == jobCategories) headerRow.getElementsByClassName("levelHeader")[0].textContent = "Reputation"
     if (categoryType != itemCategories) {
         headerRow.getElementsByClassName("valueType")[0].textContent = categoryType == jobCategories ? "Income/day" : "Effect"
     }
@@ -475,7 +535,7 @@ function updateQuickTaskDisplay(taskType) {
     var currentTask = taskType == "job" ? gameData.currentJob : gameData.currentSkill
     var quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
     var progressBar = quickTaskDisplayElement.getElementsByClassName(taskType)[0]
-    progressBar.getElementsByClassName("name")[0].textContent = currentTask.name + " lvl " + currentTask.level
+    progressBar.getElementsByClassName("name")[0].textContent = currentTask.name + (taskType == "job" ? " rep " : " lvl ") + currentTask.level
     progressBar.getElementsByClassName("progressFill")[0].style.width = currentTask.xp / currentTask.getMaxXp() * 100 + "%"
 }
 
@@ -532,7 +592,7 @@ function updateRequiredRows(data, categoryType) {
                     for (requirement of requirements) {
                         var task = gameData.taskData[requirement.task]
                         if (task.level >= requirement.requirement) continue
-                        var text = " " + requirement.task + " level " + format(task.level) + "/" + format(requirement.requirement) + ","
+                        var text = " " + requirement.task + (task instanceof Job ? " reputation " : " level ") + format(task.level) + "/" + format(requirement.requirement) + ","
                         finalText += text
                     }
                     finalText = finalText.substring(0, finalText.length - 1)
@@ -865,6 +925,8 @@ function rebirthReset() {
     gameData.currentSkill = gameData.taskData["Concentration"]
     gameData.currentProperty = gameData.itemData["Homeless"]
     gameData.currentMisc = []
+    gameData.martialRank = -1
+    gameData.cultivationRank = -1
 
     for (taskName in gameData.taskData) {
         var task = gameData.taskData[taskName]
@@ -940,9 +1002,9 @@ function assignMethods() {
         gameData.requirements[key] = requirement
     }
 
-    gameData.currentJob = gameData.taskData[gameData.currentJob.name]
-    gameData.currentSkill = gameData.taskData[gameData.currentSkill.name]
-    gameData.currentProperty = gameData.itemData[gameData.currentProperty.name]
+    gameData.currentJob = gameData.taskData[gameData.currentJob.name] || gameData.taskData["Beggar"]
+    gameData.currentSkill = gameData.taskData[gameData.currentSkill.name] || gameData.taskData["Concentration"]
+    gameData.currentProperty = gameData.itemData[gameData.currentProperty.name] || gameData.itemData["Homeless"]
     var newArray = []
     for (misc of gameData.currentMisc) {
         newArray.push(gameData.itemData[misc.name])
@@ -999,6 +1061,7 @@ function updateUI() {
     updateQuickTaskDisplay("skill")
     hideEntities()
     updateText()  
+    updateRanks()
 }
 
 function update() {
@@ -1034,12 +1097,13 @@ function exportGameData() {
 createAllRows(jobCategories, "jobTable")
 createAllRows(skillCategories, "skillTable")
 createAllRows(itemCategories, "itemTable") 
+createRankList("martialRankList", martialArtsRanks)
+createRankList("cultivationRankList", cultivationRanks)
 
 createData(gameData.taskData, jobBaseData)
 createData(gameData.taskData, skillBaseData)
 createData(gameData.itemData, itemBaseData) 
 
-document.getElementById("body").classList.add("dark")
 gameData.currentJob = gameData.taskData["Beggar"]
 gameData.currentSkill = gameData.taskData["Concentration"]
 gameData.currentProperty = gameData.itemData["Homeless"]
@@ -1047,7 +1111,7 @@ gameData.currentMisc = []
 
 gameData.requirements = {
     //Other
-    "The Arcane Association": new TaskRequirement(getElementsByClass("The Arcane Association"), [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
+    "Sect": new TaskRequirement(getElementsByClass("Sect"), [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
     "Dark magic": new EvilRequirement(getElementsByClass("Dark magic"), [{requirement: 1}]),
     "Shop": new CoinRequirement([document.getElementById("shopTabButton")], [{requirement: gameData.itemData["Tent"].getExpense() * 50}]),
     "Rebirth tab": new AgeRequirement([document.getElementById("rebirthTabButton")], [{requirement: 25}]),
@@ -1055,11 +1119,11 @@ gameData.requirements = {
     "Rebirth note 2": new AgeRequirement([document.getElementById("rebirthNote2")], [{requirement: 65}]),
     "Rebirth note 3": new AgeRequirement([document.getElementById("rebirthNote3")], [{requirement: 200}]),
     "Evil info": new EvilRequirement([document.getElementById("evilInfo")], [{requirement: 1}]),
-    "Time warping info": new TaskRequirement([document.getElementById("timeWarping")], [{task: "Mage", requirement: 10}]),
+    "Time warping info": new TaskRequirement([document.getElementById("timeWarping")], [{task: "Core Disciple", requirement: 10}]),
     "Automation": new AgeRequirement([document.getElementById("automation")], [{requirement: 20}]),
     "Quick task display": new AgeRequirement([document.getElementById("quickTaskDisplay")], [{requirement: 20}]),
 
-    //Common work
+    //Mortal Village
     "Beggar": new TaskRequirement([getTaskElement("Beggar")], []),
     "Farmer": new TaskRequirement([getTaskElement("Farmer")], [{task: "Beggar", requirement: 10}]),
     "Fisherman": new TaskRequirement([getTaskElement("Fisherman")], [{task: "Farmer", requirement: 10}]),
@@ -1067,23 +1131,23 @@ gameData.requirements = {
     "Blacksmith": new TaskRequirement([getTaskElement("Blacksmith")], [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
     "Merchant": new TaskRequirement([getTaskElement("Merchant")], [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
 
-    //Military 
-    "Squire": new TaskRequirement([getTaskElement("Squire")], [{task: "Strength", requirement: 5}]),
-    "Footman": new TaskRequirement([getTaskElement("Footman")], [{task: "Strength", requirement: 20}, {task: "Squire", requirement: 10}]),
-    "Veteran footman": new TaskRequirement([getTaskElement("Veteran footman")], [{task: "Battle tactics", requirement: 40}, {task: "Footman", requirement: 10}]),
-    "Knight": new TaskRequirement([getTaskElement("Knight")], [{task: "Strength", requirement: 100}, {task: "Veteran footman", requirement: 10}]),
-    "Veteran knight": new TaskRequirement([getTaskElement("Veteran knight")], [{task: "Battle tactics", requirement: 150}, {task: "Knight", requirement: 10}]),
-    "Elite knight": new TaskRequirement([getTaskElement("Elite knight")], [{task: "Strength", requirement: 300}, {task: "Veteran knight", requirement: 10}]),
-    "Holy knight": new TaskRequirement([getTaskElement("Holy knight")], [{task: "Mana control", requirement: 500}, {task: "Elite knight", requirement: 10}]),
-    "Legendary knight": new TaskRequirement([getTaskElement("Legendary knight")], [{task: "Mana control", requirement: 1000}, {task: "Battle tactics", requirement: 1000}, {task: "Holy knight", requirement: 10}]),
+    //Martial Arts Hall
+    "Sweeper": new TaskRequirement([getTaskElement("Sweeper")], [{task: "Strength", requirement: 5}]),
+    "Training Partner": new TaskRequirement([getTaskElement("Training Partner")], [{task: "Strength", requirement: 20}, {task: "Sweeper", requirement: 10}]),
+    "Sparring Partner": new TaskRequirement([getTaskElement("Sparring Partner")], [{task: "Battle tactics", requirement: 40}, {task: "Training Partner", requirement: 10}]),
+    "Hall Guard": new TaskRequirement([getTaskElement("Hall Guard")], [{task: "Strength", requirement: 100}, {task: "Sparring Partner", requirement: 10}]),
+    "Junior Martial Instructor": new TaskRequirement([getTaskElement("Junior Martial Instructor")], [{task: "Battle tactics", requirement: 150}, {task: "Hall Guard", requirement: 10}]),
+    "Head Martial Instructor": new TaskRequirement([getTaskElement("Head Martial Instructor")], [{task: "Strength", requirement: 300}, {task: "Junior Martial Instructor", requirement: 10}]),
+    "First Disciple": new TaskRequirement([getTaskElement("First Disciple")], [{task: "Mana control", requirement: 500}, {task: "Head Martial Instructor", requirement: 10}]),
+    "Dojo Master": new TaskRequirement([getTaskElement("Dojo Master")], [{task: "Mana control", requirement: 1000}, {task: "Battle tactics", requirement: 1000}, {task: "First Disciple", requirement: 10}]),
 
-    //The Arcane Association
-    "Student": new TaskRequirement([getTaskElement("Student")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Apprentice mage": new TaskRequirement([getTaskElement("Apprentice mage")], [{task: "Mana control", requirement: 400}, {task: "Student", requirement: 10}]),
-    "Mage": new TaskRequirement([getTaskElement("Mage")], [{task: "Mana control", requirement: 700}, {task: "Apprentice mage", requirement: 10}]),
-    "Wizard": new TaskRequirement([getTaskElement("Wizard")], [{task: "Mana control", requirement: 1000}, {task: "Mage", requirement: 10}]),
-    "Master wizard": new TaskRequirement([getTaskElement("Master wizard")], [{task: "Mana control", requirement: 1500}, {task: "Wizard", requirement: 10}]),
-    "Chairman": new TaskRequirement([getTaskElement("Chairman")], [{task: "Mana control", requirement: 2000}, {task: "Master wizard", requirement: 10}]),
+    //Sect
+    "Outer Disciple": new TaskRequirement([getTaskElement("Outer Disciple")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
+    "Inner Disciple": new TaskRequirement([getTaskElement("Inner Disciple")], [{task: "Mana control", requirement: 400}, {task: "Outer Disciple", requirement: 10}]),
+    "Core Disciple": new TaskRequirement([getTaskElement("Core Disciple")], [{task: "Mana control", requirement: 700}, {task: "Inner Disciple", requirement: 10}]),
+    "Elder": new TaskRequirement([getTaskElement("Elder")], [{task: "Mana control", requirement: 1000}, {task: "Core Disciple", requirement: 10}]),
+    "Grand Elder": new TaskRequirement([getTaskElement("Grand Elder")], [{task: "Mana control", requirement: 1500}, {task: "Elder", requirement: 10}]),
+    "Sect Master": new TaskRequirement([getTaskElement("Sect Master")], [{task: "Mana control", requirement: 2000}, {task: "Grand Elder", requirement: 10}]),
 
     //Fundamentals
     "Concentration": new TaskRequirement([getTaskElement("Concentration")], []),
@@ -1098,9 +1162,9 @@ gameData.requirements = {
 
     //Magic
     "Mana control": new TaskRequirement([getTaskElement("Mana control")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Immortality": new TaskRequirement([getTaskElement("Immortality")], [{task: "Apprentice mage", requirement: 10}]),
-    "Time warping": new TaskRequirement([getTaskElement("Time warping")], [{task: "Mage", requirement: 10}]),
-    "Super immortality": new TaskRequirement([getTaskElement("Super immortality")], [{task: "Chairman", requirement: 1000}]),
+    "Immortality": new TaskRequirement([getTaskElement("Immortality")], [{task: "Inner Disciple", requirement: 10}]),
+    "Time warping": new TaskRequirement([getTaskElement("Time warping")], [{task: "Core Disciple", requirement: 10}]),
+    "Super immortality": new TaskRequirement([getTaskElement("Super immortality")], [{task: "Sect Master", requirement: 1000}]),
 
     //Dark magic
     "Dark influence": new EvilRequirement([getTaskElement("Dark influence")], [{requirement: 1}]),
@@ -1141,6 +1205,8 @@ loadGameData()
 
 setCustomEffects()
 addMultipliers()
+
+document.getElementById("body").classList.add("dark")
 
 setTab(jobTabButton, "jobs")
 

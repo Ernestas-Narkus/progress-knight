@@ -164,3 +164,15 @@ class EvilRequirement extends Requirement {
         return gameData.evil >= requirement.requirement
     }    
 }
+
+class RankRequirement extends Requirement {
+    // requirements: [{track: "martial" | "cultivation", requirement: <rank index>}]
+    constructor(elements, requirements) {
+        super(elements, requirements)
+        this.type = "rank"
+    }
+
+    getCondition(requirement) {
+        return gameData[requirement.track + "Rank"] >= requirement.requirement
+    }
+}
