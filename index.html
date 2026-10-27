@@ -1,24 +1,25 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/dark.css">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
     <title>Progress Knight</title>
 </head>
-<body id="body" class="dark">
+<body id="body">
     <div class="w3-margin"> 
         <h1>Progress Knight</h1>
         <div style="width: 1220px; height: 600px"> 
             <div class="panel w3-padding" style="width: 300px; height: auto; float: left">
                 <span id="deathText">
-                    <div style="font-size: large; color: red">Age has caught up to you</div>
-                    <div class="sidebar-element" style="color: gray">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
+                    <div class="c-expense" style="font-size: large">Age has caught up to you</div>
+                    <div class="sidebar-element muted">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
                 </span>
 
                 <div class="" style="font-size: large">Age <span id="ageDisplay">14</span> Day <span id="dayDisplay">0</span></div>
-                <div class="sidebar-element" style="color: gray">Lifespan: <span id="lifespanDisplay">70</span> years</div>
+                <div class="sidebar-element muted">Lifespan: <span id="lifespanDisplay">70</span> years</div>
                 
                 <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
 
@@ -40,22 +41,22 @@
                     <span></span>
                     <span></span>
                 </div>
-                <div style="color: gray">Balance (in coins)</div>
+                <div class="muted">Balance (in coins)</div>
 
                 <ul class="sidebar-element" style="padding-left: 20px;">
-                    <li><span style="color: rgb(9, 160, 230)">Net/day: </span ><b id="signDisplay"></b><span id="netDisplay">
+                    <li><span class="c-net">Net/day: </span ><b id="signDisplay"></b><span id="netDisplay">
                         <span></span>
                         <span></span>
                         <span></span>
                         <span></span>
                     </span></li>
-                    <li><span style="color: green">Income/day: </span><span id="incomeDisplay">
+                    <li><span class="c-income">Income/day: </span><span id="incomeDisplay">
                         <span></span>
                         <span></span>
                         <span></span>
                         <span></span>
                     </span></li>
-                    <li><span style="color: red">Expense/day: </span><span id="expenseDisplay">
+                    <li><span class="c-expense">Expense/day: </span><span id="expenseDisplay">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -65,30 +66,30 @@
 
                 <span id="quickTaskDisplay">
                     <div style="width: 230px" class="small-margin inline job progress-bar progressBar">
-                        <div class="progress-fill progressFill" style="background-color:rgb(225, 165, 0)"></div>
+                        <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>
                     </div>
-                    <div class="sidebar-element" style="color: gray">Current job</div>
+                    <div class="sidebar-element muted">Current job</div>
 
                     <div style="width: 230px" class="small-margin skill progress-bar progressBar">
-                        <div class="progress-fill progressFill" style="background-color:rgb(225, 165, 0)"></div>
+                        <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>              
                     </div>
-                    <div class="sidebar-element" style="color: gray">Current skill</div>
+                    <div class="sidebar-element muted">Current skill</div>
                 </span>
 
-                <div style="font-size: large"><span style="color: rgb(15, 105, 207)">Happiness: </span><span id="happinessDisplay"></span></div>
-                <div style="color: gray" class="sidebar-element">Affects all xp gain</div>
+                <div style="font-size: large"><span class="c-happy">Happiness: </span><span id="happinessDisplay"></span></div>
+                <div class="sidebar-element muted">Affects all xp gain</div>
 
                 <span id="evilInfo">
-                    <div style="font-size: large"><span style="color: rgb(200, 0, 0)">Evil: </span><span id="evilDisplay"></span></div>
-                    <div style="color: gray" class="sidebar-element">Affects dark magic xp gain</div>
+                    <div style="font-size: large"><span class="c-evil">Evil: </span><span id="evilDisplay"></span></div>
+                    <div class="sidebar-element muted">Affects dark magic xp gain</div>
                 </span>
 
                 <!--
                 <span id="scheduling">
                     <div style="font-size: large">Scheduling</div>
-                    <div style="color: gray" class="sidebar-element">Schedule time to jobs/skills</div>
+                    <div class="sidebar-element muted">Schedule time to jobs/skills</div>
                     <span style="height: 30px"> 
                         <p style="width: 5px">Jobs</br>(32%)</p>
                         <input id="schedulingSlider" class="slider" type="range" min="0" max="100" value="0">
@@ -98,8 +99,8 @@
                 -->
 
                 <span id="timeWarping">
-                    <div style="font-size: large"><span style="color: rgb(204, 34, 219)">Time warping: </span><span id="timeWarpingDisplay"></span></div>
-                    <div style="color: gray">Affects game speed</div>
+                    <div style="font-size: large"><span class="c-warp">Time warping: </span><span id="timeWarpingDisplay"></span></div>
+                    <div class="muted">Affects game speed</div>
                     <button id="timeWarpingButton" class="w3-button button sidebar-element" style="margin-top: 5px; width:150px" onClick="setTimeWarping()">Enable warp</button>
                 </span>
             </div>
@@ -198,7 +199,7 @@
                                 <span></span>
                                 <span></span>
                             </span>
-                            <span style="color: rgb(200, 0, 0)" class="evil"></span>
+                            <span class="evil c-evil"></span>
                         </span>
                     </td> 
                 </template>
@@ -237,10 +238,10 @@
                                 you realise you do not have many years to live left anyway so you consider touching the eye
                                 to see what happens.
                             </div>
-                            <i style="color: grey">
+                            <i class="muted">
                                 By touching the eyeball, you will be reborn and have to restart life again, losing all your levels and coins.
                                 However, you will gain <b>xp multipliers</b> for your jobs and skills equivalent to: <b>1 + the max level of the skill or job / 10.</b>
-                                This means you will learn everything again much more quickly than you did in your previous life. <span style="color: rgb(200, 0, 0)">
+                                This means you will learn everything again much more quickly than you did in your previous life. <span class="c-evil">
                                 Something tells you that the amulet might transform even further after living for <b>2 whole centuries</b>...</span>
                             </i>
                             </br>
@@ -252,7 +253,7 @@
                                 Your gut instinct was right. The moment you hit the grand age of 200, you hear an ominous hum coming from the amulet.
                                 A mouth emerges from its surface and begins to cackle, and proceeds to say: "So you've made it this far... Are you ready to embrace evil?"
                             </div>
-                            <i style="color: rgb(200, 0, 0)">
+                            <i class="c-evil">
                                 If you decide to embrace evil, all of your levels, coins and even max levels will be reset.
                                 You will be reborn as a fresh slate. However, you will unlock a new line of skills and gain
                                 <b><span id="evilGainDisplay"></span> evil</b>, which will heavily impact your future lives.

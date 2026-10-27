@@ -1,23 +1,35 @@
+/* "Twilight" theme: overrides the tokens in styles.css when body has class "dark" */
 .dark {
-    background-color: rgb(32, 32, 32);
-    color: white
-}
-
-.dark .panel {
-    background-color: rgb(46, 46, 46);
-}
-
-.dark .button {
-    background-color: rgb(31, 31, 31);
-    border-color: white !important;
-    color: white !important
-}
-
-.dark .w3-bordered tr, .w3-table-all tr {
-    border-bottom: 1px solid rgb(73, 73, 73);
-}
-
-.dark .w3-button:hover {
-    background-color: rgb(82, 82, 82) !important;
-    color: white !important
+    --text: #eceffd;
+    --muted: #aab3d6;
+    --panel: rgba(36, 41, 82, 0.72);
+    --border: #5b66a8;
+    --btn-bg: rgba(48, 54, 104, 0.9);
+    --btn-hover: #444c92;
+    --tab-on: #5a67b8;
+    --tab-on-text: #ffffff;
+    --bar-track: #2b3163;
+    --bar-fill: #515eb0;
+    --bar-text: #f4f6ff;
+    --current: #856020;
+    --active: #9fb0f5;
+    --danger: #b3466a;
+    --tip-bg: #0f1330;
+    --tip-text: #eef1ff;
+    --shadow: 0 10px 34px rgba(5, 8, 30, 0.45);
+    --c-net: #7cc0f2;
+    --c-income: #7fd8ae;
+    --c-expense: #ff9db8;
+    --c-happy: #93adff;
+    --c-warp: #c9a6ff;
+    --c-evil: #ff8fb4;
+    --coin-p: #8fd6ea;
+    --coin-g: #f2d26e;
+    --coin-s: #c0c7da;
+    --coin-c: #e8a077;
+    --sky:
+        radial-gradient(50% 35% at 15% 10%, rgba(150, 160, 235, 0.20), transparent 70%),
+        radial-gradient(45% 30% at 85% 22%, rgba(190, 150, 235, 0.16), transparent 70%),
+        radial-gradient(70% 34% at 50% 100%, rgba(140, 150, 230, 0.18), transparent 70%),
+        linear-gradient(180deg, #131937 0%, #232853 58%, #38335e 100%);
 }

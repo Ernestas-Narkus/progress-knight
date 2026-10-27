@@ -120,15 +120,15 @@ const itemCategories = {
 }
 
 const headerRowColors = {
-    "Common work": "#55a630",
-    "Military": "#e63946",
-    "The Arcane Association": "#C71585",
-    "Fundamentals": "#4a4e69",
-    "Combat": "#ff704d",
-    "Magic": "#875F9A",
-    "Dark magic": "#73000f",
-    "Properties": "#219ebc",
-    "Misc": "#b56576",
+    "Common work": "#b6e2d0",
+    "Military": "#f5bccb",
+    "The Arcane Association": "#d3bcf2",
+    "Fundamentals": "#bccff3",
+    "Combat": "#f8d0aa",
+    "Magic": "#c7bcf0",
+    "Dark magic": "#a99bc8",
+    "Properties": "#abdce9",
+    "Misc": "#f0c6d8",
 }
 
 const tooltips = {
@@ -311,7 +311,7 @@ function applyMultipliers(value, multipliers) {
 }
 
 function applySpeed(value) {
-    finalValue = value * getGameSpeed() / updateSpeed
+    var finalValue = value * getGameSpeed() / updateSpeed
     return finalValue
 }
 
@@ -428,7 +428,6 @@ function createHeaderRow(templates, categoryType, categoryName) {
     }
 
     headerRow.style.backgroundColor = headerRowColors[categoryName]
-    headerRow.style.color = "#ffffff"
     headerRow.classList.add(removeSpaces(categoryName))
     headerRow.classList.add("headerRow")
     
@@ -585,8 +584,7 @@ function updateItemRows() {
         var button = row.getElementsByClassName("button")[0]
         button.disabled = gameData.coins < item.getExpense()
         var active = row.getElementsByClassName("active")[0]
-        var color = itemCategories["Properties"].includes(item.name) ? headerRowColors["Properties"] : headerRowColors["Misc"]
-        active.style.backgroundColor = gameData.currentMisc.includes(item) || item == gameData.currentProperty ? color : "white"
+        active.classList.toggle("on", gameData.currentMisc.includes(item) || item == gameData.currentProperty)
         row.getElementsByClassName("effect")[0].textContent = item.getEffectDescription()
         formatCoins(item.getExpense(), row.getElementsByClassName("expense")[0])
     }
@@ -629,13 +627,13 @@ function setSignDisplay() {
     var signDisplay = document.getElementById("signDisplay")
     if (getIncome() > getExpense()) {
         signDisplay.textContent = "+"
-        signDisplay.style.color = "green"
+        signDisplay.className = "c-income"
     } else if (getExpense() > getIncome()) {
         signDisplay.textContent = "-"
-        signDisplay.style.color = "red"
+        signDisplay.className = "c-expense"
     } else {
         signDisplay.textContent = ""
-        signDisplay.style.color = "gray"
+        signDisplay.className = "muted"
     }
 }
 
@@ -655,13 +653,6 @@ function hideEntities() {
                 element.classList.add("hidden")
             }
         }
-    }
-}
-
-function createItemData(baseData) {
-    for (var item of baseData) {
-        gameData.itemData[item.name] = "happiness" in item ? new Property(task) : new Misc(task)
-        gameData.itemData[item.name].id = "item " + item.name
     }
 }
 
@@ -731,7 +722,7 @@ function setSkillWithLowestMaxXp() {
         }
     }
 
-    if (xpDict == {}) {
+    if (Object.keys(xpDict).length === 0) {
         skillWithLowestMaxXp = gameData.taskData["Concentration"]
         return
     }
@@ -799,10 +790,10 @@ function format(number) {
 function formatCoins(coins, element) {
     var tiers = ["p", "g", "s"]
     var colors = {
-        "p": "#79b9c7",
-        "g": "#E5C100",
-        "s": "#a8a8a8",
-        "c": "#a15c2f"
+        "p": "var(--coin-p)",
+        "g": "var(--coin-g)",
+        "s": "var(--coin-s)",
+        "c": "var(--coin-c)"
     }
     var leftOver = coins
     var i = 0
