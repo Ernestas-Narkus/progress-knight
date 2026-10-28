@@ -85,6 +85,16 @@
                     <div class="muted">Affects game speed</div>
                     <button id="timeWarpingButton" class="w3-button button sidebar-element" style="margin-top: 5px; width:150px" onClick="setTimeWarping()">Enable warp</button>
                 </span>
+
+                <div>
+                    <div style="font-size: large">Speed boost: <span id="speedBoostDisplay"></span></div>
+                    <div class="muted">Multiplies game speed</div>
+                    <div class="speed-row">
+                        <button class="w3-button button speed-btn" data-speed="5" onClick="setSpeedMultiplier(5)">x5</button>
+                        <button class="w3-button button speed-btn" data-speed="10" onClick="setSpeedMultiplier(10)">x10</button>
+                        <button class="w3-button button speed-btn" data-speed="25" onClick="setSpeedMultiplier(25)">x25</button>
+                    </div>
+                </div>
             </div>
 
             <div class="center">
@@ -99,7 +109,7 @@
             <div class="panel w3-margin-top w3-padding">
                 <template class="headerRowTaskTemplate">
                     <tr>
-                        <th class="category">Job</th>
+                        <th class="category" style="width: 250px">Job</th>
                         <th class="levelHeader">Level</th>
                         <th class="valueType">Value type</th>
                         <th>Xp/day</th>
@@ -112,9 +122,9 @@
 
                 <template class="headerRowItemTemplate">
                     <tr>
-                        <th class="category">Item</th>
-                        <th>Active</th>
-                        <th>Effect</th>
+                        <th class="category" style="width: 250px">Item</th>
+                        <th style="width: 100px">Active</th>
+                        <th style="width: 250px">Effect</th>
                         <th>Expense/day</th>
                         <th class="collapseCell"><button type="button" class="collapse-btn"></button></th>
                     </tr>

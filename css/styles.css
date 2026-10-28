@@ -105,8 +105,7 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
     background-color: var(--bar-track);
     border-radius: 3px;
     cursor: pointer;
-    width: 100%;
-    max-width: 240px;
+    width: 270px;
 }
 .progress-fill { height: 30px; background-color: var(--bar-fill); border-radius: 3px; }
 .progress-text {
@@ -209,7 +208,9 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 .net-line { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; }
 
 /* Collapsible categories */
-.collapsed { display: none !important; }
+/* visibility:collapse removes a table row but still counts it when sizing columns, so headers never shift */
+tr.collapsed { visibility: collapse; }
+td.collapsed { display: none !important; }
 .collapseCell { width: 44px; text-align: right; }
 .collapse-btn {
     width: 28px;
@@ -224,17 +225,7 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 }
 .collapse-btn:hover { background-color: rgba(27, 33, 32, 0.14); }
 
-/* Fixed table columns: header positions never depend on which rows are visible or collapsed.
-   The first column (name) takes whatever width is left over. */
-#jobTable, #skillTable, #itemTable { table-layout: fixed; }
-#jobTable .headerRow th:nth-child(2), #skillTable .headerRow th:nth-child(2) { width: 88px; }   /* Level / Reputation */
-#jobTable .headerRow th:nth-child(3), #skillTable .headerRow th:nth-child(3) { width: 126px; }  /* Income / Effect */
-#jobTable .headerRow th:nth-child(4), #skillTable .headerRow th:nth-child(4) { width: 62px; }   /* Xp/day */
-#jobTable .headerRow th:nth-child(5), #skillTable .headerRow th:nth-child(5) { width: 72px; }   /* Xp left */
-#jobTable .headerRow th:nth-child(6), #skillTable .headerRow th:nth-child(6) { width: 70px; }   /* Max level */
-#jobTable .headerRow th:nth-child(7), #skillTable .headerRow th:nth-child(7) { width: 46px; }   /* Skip */
-#jobTable .headerRow th:nth-child(8), #skillTable .headerRow th:nth-child(8) { width: 44px; }   /* Collapse */
-#itemTable .headerRow th:nth-child(2) { width: 80px; }   /* Active */
-#itemTable .headerRow th:nth-child(3) { width: 190px; }  /* Effect */
-#itemTable .headerRow th:nth-child(4) { width: 150px; }  /* Expense/day */
-#itemTable .headerRow th:nth-child(5) { width: 44px; }   /* Collapse */
+/* Speed boost buttons */
+.speed-row { display: flex; gap: 8px; margin-top: 5px; }
+.speed-btn { flex: 1; padding: 8px 0; }
+.speed-btn.on, .speed-btn.on:hover { background-color: var(--tab-on) !important; color: var(--tab-on-text) !important; }

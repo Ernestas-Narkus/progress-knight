@@ -8,6 +8,7 @@ var gameData = {
     evil: 0,
     paused: false,
     timeWarpingEnabled: true,
+    speedMultiplier: 1,
 
     martialRank: -1,
     cultivationRank: -1,
@@ -406,7 +407,7 @@ function getEvilGain() {
 function getGameSpeed() {
     var timeWarping = gameData.taskData["Time warping"]
     var timeWarpingSpeed = gameData.timeWarpingEnabled ? timeWarping.getEffect() : 1
-    var gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed
+    var gameSpeed = baseGameSpeed * +!gameData.paused * +isAlive() * timeWarpingSpeed * gameData.speedMultiplier
     return gameSpeed
 }
 
@@ -450,6 +451,11 @@ function setTab(element, selectedTab) {
 
 function setPause() {
     gameData.paused = !gameData.paused
+}
+
+// Clicking the active speed button again returns to x1
+function setSpeedMultiplier(multiplier) {
+    gameData.speedMultiplier = gameData.speedMultiplier == multiplier ? 1 : multiplier
 }
 
 function setTimeWarping() {
@@ -708,6 +714,13 @@ function updateText() {
 
     document.getElementById("timeWarpingDisplay").textContent = "x" + gameData.taskData["Time warping"].getEffect().toFixed(2)
     document.getElementById("timeWarpingButton").textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
+
+    document.getElementById("speedBoostDisplay").textContent = "x" + gameData.speedMultiplier
+    document.querySelectorAll(".speed-btn").forEach(function(button) {
+        var active = Number(button.dataset.speed) == gameData.speedMultiplier
+        button.classList.toggle("on", active)
+        button.setAttribute("aria-pressed", String(active))
+    })
 }
 
 function setSignDisplay() {
