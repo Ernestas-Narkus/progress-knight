@@ -29,9 +29,10 @@
     --h-common: #a3b899;
     --h-military: #c78d80;
     --h-arcane: #9fb0bf;
-    --h-fundamentals: #b9b49a;
-    --h-combat: #c9a27a;
-    --h-magic: #a79bbd;
+    --h-worldly: #b9b49a;
+    --h-mind: #9db9c9;
+    --h-martial: #c9a27a;
+    --h-qi: #a79bbd;
     --h-dark: #a08a96;
     --h-properties: #93b5b0;
     --h-misc: #bf9fa0;
@@ -127,9 +128,10 @@ button:focus-visible, .w3-button:focus-visible { outline: 2px solid var(--active
 .headerRow.MortalVillage { background-color: var(--h-common) !important; }
 .headerRow.MartialArtsHall { background-color: var(--h-military) !important; }
 .headerRow.Sect { background-color: var(--h-arcane) !important; }
-.headerRow.Fundamentals { background-color: var(--h-fundamentals) !important; }
-.headerRow.Combat { background-color: var(--h-combat) !important; }
-.headerRow.Magic { background-color: var(--h-magic) !important; }
+.headerRow.Worldly { background-color: var(--h-worldly) !important; }
+.headerRow.Mind { background-color: var(--h-mind) !important; }
+.headerRow.MartialSkill { background-color: var(--h-martial) !important; }
+.headerRow.Qi { background-color: var(--h-qi) !important; }
 .headerRow.Darkmagic { background-color: var(--h-dark) !important; }
 .headerRow.Properties { background-color: var(--h-properties) !important; }
 .headerRow.Misc { background-color: var(--h-misc) !important; }
@@ -229,3 +231,10 @@ td.collapsed { display: none !important; }
 .speed-row { display: flex; gap: 8px; margin-top: 5px; }
 .speed-btn { flex: 1; padding: 8px 0; }
 .speed-btn.on, .speed-btn.on:hover { background-color: var(--tab-on) !important; color: var(--tab-on-text) !important; }
+
+/* Sticky sidebar option: stays in view while you scroll, and scrolls on its own if taller than the window */
+.side-panel.sticky { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
+.status-message { min-height: 1.5em; margin-top: 8px; }
+
+/* Only appears if something goes wrong */
+#errorBanner { position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; padding: 10px 16px; background-color: var(--danger); color: #fff; }

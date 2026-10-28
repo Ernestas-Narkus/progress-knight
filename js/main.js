@@ -1,3 +1,23 @@
+// Shows the first error on screen so a problem is never silent (the game would otherwise just look stuck)
+function showFatalError(message) {
+    if (document.getElementById("errorBanner")) return
+    var banner = document.createElement("div")
+    banner.id = "errorBanner"
+    banner.setAttribute("role", "alert")
+    banner.textContent = "Something went wrong: " + message + " - try a hard refresh (Ctrl+F5). If it keeps happening, tell me this message."
+    document.body.appendChild(banner)
+}
+window.addEventListener("error", function(event) { showFatalError(event.message) })
+
+function runSafely(step) {
+    try { step() } catch (error) { console.error(error); showFatalError(error.message) }
+}
+
+// Newer interface pieces are looked up leniently, so a page that is missing one can never stop the game from starting
+function byId(id) {
+    return document.getElementById(id) || document.createElement("div")
+}
+
 var gameData = {
     taskData: {},
     itemData: {},
@@ -9,6 +29,12 @@ var gameData = {
     paused: false,
     timeWarpingEnabled: true,
     speedMultiplier: 1,
+
+    loadouts: {},
+    settings: {
+        stickySidebar: false,
+        autoPause: false,
+    },
 
     martialRank: -1,
     cultivationRank: -1,
@@ -94,14 +120,12 @@ const skillBaseData = {
     "Bargaining": {name: "Bargaining", maxXp: 100, effect: -0.01, description: "Expenses"},
     "Meditation": {name: "Meditation", maxXp: 100, effect: 0.01, description: "State of Mind"},
 
-    "Strength": {name: "Strength", maxXp: 100, effect: 0.01, description: "Martial pay"},
-    "Battle tactics": {name: "Battle tactics", maxXp: 100, effect: 0.01, description: "Martial xp"},
-    "Muscle memory": {name: "Muscle memory", maxXp: 100, effect: 0.01, description: "Strength xp"},
+    "Conditioning": {name: "Conditioning", maxXp: 100, effect: 0.01, description: "Martial pay"},
+    "Strategy": {name: "Strategy", maxXp: 100, effect: 0.01, description: "Job xp"},
+    "Muscle Memory": {name: "Muscle Memory", maxXp: 100, effect: 0.01, description: "Conditioning xp"},
 
-    "Mana control": {name: "Mana control", maxXp: 100, effect: 0.01, description: "Sect xp"},
-    "Immortality": {name: "Immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
+    "Qi Control": {name: "Qi Control", maxXp: 100, effect: 0.01, description: "Sect xp"},
     "Time warping": {name: "Time warping", maxXp: 100, effect: 0.01, description: "Gamespeed"},
-    "Super immortality": {name: "Super immortality", maxXp: 100, effect: 0.01, description: "Longer lifespan"},
 
     "Dark influence": {name: "Dark influence", maxXp: 100, effect: 0.01, description: "All xp"},
     "Evil control": {name: "Evil control", maxXp: 100, effect: 0.01, description: "Evil gain"},
@@ -123,11 +147,11 @@ const itemBaseData = {
     "Grand palace": {name: "Grand palace", expense: 5000000, effect: 60},
 
     "Book": {name: "Book", expense: 10, effect: 1.5, description: "Skill xp"},
-    "Dumbbells": {name: "Dumbbells", expense: 50, effect: 1.5, description: "Strength xp"},
+    "Dumbbells": {name: "Dumbbells", expense: 50, effect: 1.5, description: "Conditioning xp"},
     "Personal squire": {name: "Personal squire", expense: 200, effect: 2, description: "Job xp"},
     "Steel longsword": {name: "Steel longsword", expense: 1000, effect: 2, description: "Martial xp"},
     "Butler": {name: "Butler", expense: 7500, effect: 1.5, description: "State of Mind"},
-    "Sapphire charm": {name: "Sapphire charm", expense: 50000, effect: 3, description: "Magic xp"},
+    "Sapphire charm": {name: "Sapphire charm", expense: 50000, effect: 3, description: "Qi xp"},
     "Study desk": {name: "Study desk", expense: 1000000, effect: 2, description: "Skill xp"},
     "Library": {name: "Library", expense: 10000000, effect: 1.5, description: "Skill xp"},
 }
@@ -139,9 +163,10 @@ const jobCategories = {
 }
 
 const skillCategories = {
-    "Fundamentals": ["Concentration", "Productivity", "Bargaining", "Meditation"],
-    "Combat": ["Strength", "Battle tactics", "Muscle memory"],
-    "Magic": ["Mana control", "Immortality", "Time warping", "Super immortality"],
+    "Worldly": ["Bargaining", "Productivity", "Strategy"],
+    "Mind": ["Concentration", "Meditation"],
+    "Martial Skill": ["Conditioning", "Muscle Memory"],
+    "Qi": ["Qi Control", "Time warping"],
     "Dark magic": ["Dark influence", "Evil control", "Intimidation", "Demon training", "Blood meditation", "Demon's wealth"]
 }
 
@@ -154,9 +179,10 @@ const headerRowColors = {
     "Mortal Village": "#b6e2d0",
     "Martial Arts Hall": "#f5bccb",
     "Sect": "#d3bcf2",
-    "Fundamentals": "#bccff3",
-    "Combat": "#f8d0aa",
-    "Magic": "#c7bcf0",
+    "Worldly": "#bccff3",
+    "Mind": "#bccff3",
+    "Martial Skill": "#f8d0aa",
+    "Qi": "#c7bcf0",
     "Dark magic": "#a99bc8",
     "Properties": "#abdce9",
     "Misc": "#f0c6d8",
@@ -189,14 +215,12 @@ const tooltips = {
     "Bargaining": "Study the tricks of the trade and persuasive skills to lower any type of expense.",
     "Meditation": "Fill your mind with peace and tranquility to reach a calmer state of mind.",
 
-    "Strength": "Condition your body and strength through harsh training. Stronger individuals are paid more in the military.",
-    "Battle tactics": "Create and revise battle strategies, improving experience gained in the military.",
-    "Muscle memory": "Strengthen your neurons through habit and repetition, improving strength gains throughout the body.",
+    "Conditioning": "Condition your body and strength through harsh training. Stronger individuals are paid more in the martial arts hall.",
+    "Strategy": "Create and revise strategies, improving experience gained in every job.",
+    "Muscle Memory": "Strengthen your neurons through habit and repetition, improving conditioning gains throughout the body.",
 
-    "Mana control": "Strengthen your mana channels throughout your body, aiding you in becoming a more powerful magical user.",
-    "Immortality": "Lengthen your lifespan through the means of magic. However, is this truly the immortality you have tried seeking for...?",
+    "Qi Control": "Strengthen your qi channels throughout your body, aiding you in becoming a more powerful cultivator.",
     "Time warping": "Bend space and time through forbidden techniques, resulting in a faster gamespeed.",
-    "Super immortality": "Through harnessing ancient, forbidden techniques, lengthen your lifespan drastically beyond comprehension.",
 
     "Dark influence": "Encompass yourself with formidable power bestowed upon you by evil, allowing you to pick up and absorb any job or skill with ease.",
     "Evil control": "Tame the raging and growing evil within you, improving evil gain in-between rebirths.",
@@ -219,12 +243,12 @@ const tooltips = {
     "Personal squire": "Assists you in completing day to day activities, giving you more time to be productive at work.",
     "Steel longsword": "A fine blade used to slay enemies even quicker in combat and therefore gain more experience.",
     "Butler": "Keeps your household clean at all times and also prepares three delicious meals per day, leaving you in a happier, stress-free mood.",
-    "Sapphire charm": "Embedded with a rare sapphire, this charm activates more mana channels within your body, providing a much easier time learning magic.",
+    "Sapphire charm": "Embedded with a rare sapphire, this charm activates more qi channels within your body, providing a much easier time learning qi skills.",
     "Study desk": "A dedicated area which provides many fine stationary and equipment designed for furthering your progress in research.",
     "Library": "Stores a collection of books, each containing vast amounts of information from basic life skills to complex magic spells.",
 }
 
-const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc"];
+const units = ["", "k", "M", "B", "T", "q", "Q", "Sx", "Sp", "Oc", "No", "Dc", "Ud", "Dd", "Td", "Qd", "Qn", "Sxd", "Spd", "Ocd", "Nod", "Vg"];
 
 const jobTabButton = document.getElementById("jobTabButton")
 
@@ -237,7 +261,7 @@ function setCultivationRank(index) {
 }
 
 function createRankList(listId, ranks) {
-    var list = document.getElementById(listId)
+    var list = byId(listId)
     ranks.forEach(function(name) {
         var item = document.createElement("li")
         item.className = "rank"
@@ -247,8 +271,8 @@ function createRankList(listId, ranks) {
 }
 
 function updateRankList(listId, displayId, ranks, rankIndex, emptyText) {
-    document.getElementById(displayId).textContent = rankIndex >= 0 ? ranks[rankIndex] : emptyText
-    var items = document.getElementById(listId).children
+    byId(displayId).textContent = rankIndex >= 0 ? ranks[rankIndex] : emptyText
+    var items = byId(listId).children
     for (var i = 0; i < items.length; i++) {
         items[i].classList.toggle("reached", i < rankIndex)
         items[i].classList.toggle("current", i == rankIndex)
@@ -311,6 +335,7 @@ function addMultipliers() {
             task.incomeMultipliers.push(task.getLevelMultiplier.bind(task))
             task.incomeMultipliers.push(getBindedTaskEffect("Demon's wealth"))
             task.xpMultipliers.push(getBindedTaskEffect("Productivity"))
+            task.xpMultipliers.push(getBindedTaskEffect("Strategy"))
             task.xpMultipliers.push(getBindedItemEffect("Personal squire"))    
         } else if (task instanceof Skill) {
             task.xpMultipliers.push(getBindedTaskEffect("Concentration"))
@@ -320,16 +345,15 @@ function addMultipliers() {
         }
 
         if (jobCategories["Martial Arts Hall"].includes(task.name)) {
-            task.incomeMultipliers.push(getBindedTaskEffect("Strength"))
-            task.xpMultipliers.push(getBindedTaskEffect("Battle tactics"))
+            task.incomeMultipliers.push(getBindedTaskEffect("Conditioning"))
             task.xpMultipliers.push(getBindedItemEffect("Steel longsword"))
-        } else if (task.name == "Strength") {
-            task.xpMultipliers.push(getBindedTaskEffect("Muscle memory"))
+        } else if (task.name == "Conditioning") {
+            task.xpMultipliers.push(getBindedTaskEffect("Muscle Memory"))
             task.xpMultipliers.push(getBindedItemEffect("Dumbbells"))
-        } else if (skillCategories["Magic"].includes(task.name)) {
+        } else if (skillCategories["Qi"].includes(task.name)) {
             task.xpMultipliers.push(getBindedItemEffect("Sapphire charm"))
         } else if (jobCategories["Sect"].includes(task.name)) {
-            task.xpMultipliers.push(getBindedTaskEffect("Mana control"))
+            task.xpMultipliers.push(getBindedTaskEffect("Qi Control"))
         } else if (skillCategories["Dark magic"].includes(task.name)) {
             task.xpMultipliers.push(getEvil)
         }
@@ -361,12 +385,6 @@ function setCustomEffects() {
     var timeWarping = gameData.taskData["Time warping"]
     timeWarping.getEffect = function() {
         var multiplier = 1 + getBaseLog(13, timeWarping.level + 1) 
-        return multiplier
-    }
-
-    var immortality = gameData.taskData["Immortality"]
-    immortality.getEffect = function() {
-        var multiplier = 1 + getBaseLog(33, immortality.level + 1) 
         return multiplier
     }
 }
@@ -457,6 +475,130 @@ function setPause() {
 function setSpeedMultiplier(multiplier) {
     gameData.speedMultiplier = gameData.speedMultiplier == multiplier ? 1 : multiplier
 }
+
+function isUnlocked(name) {
+    var requirement = gameData.requirements[name]
+    return !requirement || requirement.isCompleted()
+}
+
+var statusTimer = null
+function showStatus(text) {
+    var element = byId("statusMessage")
+    element.textContent = text
+    clearTimeout(statusTimer)
+    statusTimer = setTimeout(function() { element.textContent = "" }, 4000)
+}
+
+function setStickySidebar(sticky) {
+    gameData.settings.stickySidebar = sticky
+    byId("settingsStickySidebar").checked = sticky
+    byId("info").classList.toggle("sticky", sticky)
+}
+
+function setAutoPause(enabled) {
+    gameData.settings.autoPause = enabled
+    byId("settingsAutoPause").checked = enabled
+}
+
+function initUI() {
+    setStickySidebar(gameData.settings.stickySidebar)
+    setAutoPause(gameData.settings.autoPause)
+}
+
+// Cycles through the tabs that are currently visible (the Story tab stays hidden until it unlocks)
+function changeTab(direction) {
+    var tabButtons = Array.prototype.slice.call(document.getElementsByClassName("tabButton"))
+    var visible = tabButtons.filter(function(button) { return button.offsetParent !== null })
+    var current = visible.findIndex(function(button) { return button.classList.contains("w3-blue-gray") })
+    visible[(current + direction + visible.length) % visible.length].click()
+}
+
+// Loadouts remember your job, skill, property and items, and are saved with the game
+function saveLoadout(slot) {
+    gameData.loadouts[slot] = {
+        job: gameData.currentJob.name,
+        skill: gameData.currentSkill.name,
+        property: gameData.currentProperty.name,
+        misc: gameData.currentMisc.map(function(item) { return item.name }),
+    }
+    showStatus("Loadout " + slot + " saved")
+}
+
+function loadLoadout(slot) {
+    var loadout = gameData.loadouts[slot]
+    if (!loadout) {
+        showStatus("Loadout " + slot + " is empty. Press Alt+" + slot + " to save one")
+        return
+    }
+
+    var skipped = []
+    function usable(name, data) {
+        if (name in data && isUnlocked(name)) return true
+        skipped.push(name)
+        return false
+    }
+
+    if (usable(loadout.job, gameData.taskData)) setTask(loadout.job)
+    if (usable(loadout.skill, gameData.taskData)) setTask(loadout.skill)
+    if (usable(loadout.property, gameData.itemData)) setProperty(loadout.property)
+    gameData.currentMisc = []
+    loadout.misc.forEach(function(name) {
+        if (usable(name, gameData.itemData)) setMisc(name)
+    })
+
+    // Auto-promote and auto-learn would immediately override the loadout, so they are switched off
+    var autoWasOn = autoPromoteElement.checked || autoLearnElement.checked
+    autoPromoteElement.checked = false
+    autoLearnElement.checked = false
+
+    var message = "Loadout " + slot + " loaded"
+    if (autoWasOn) message += " (auto-promote and auto-learn turned off)"
+    if (skipped.length > 0) message += ". Not available yet: " + skipped.join(", ")
+    showStatus(message)
+}
+
+// Keys that are meant for typing (the import box etc.) never trigger shortcuts
+function isTypingTarget(target) {
+    if (!target) return false
+    if (target.isContentEditable) return true
+    if (target.tagName == "TEXTAREA" || target.tagName == "SELECT") return true
+    if (target.tagName == "INPUT") return !["checkbox", "radio", "button", "submit"].includes(target.type)
+    return false
+}
+
+function loadoutSlot(event) {
+    var match = /^(?:Digit|Numpad)([1-3])$/.exec(event.code)
+    return match ? Number(match[1]) : 0
+}
+
+window.addEventListener("keydown", function(event) {
+    if (isTypingTarget(event.target) || event.ctrlKey || event.metaKey) return
+
+    // event.code is used for the digits because Alt+1 types a different character on some keyboards
+    var slot = loadoutSlot(event)
+    if (slot && !event.shiftKey) {
+        if (!event.repeat) event.altKey ? saveLoadout(slot) : loadLoadout(slot)
+        event.preventDefault()
+        return
+    }
+    if (event.altKey) return
+
+    if (event.code == "Space") {
+        if (!event.repeat) setPause()
+        event.preventDefault() // no page scroll, and no second click on a focused button
+    } else if (event.code == "ArrowRight" || event.code == "ArrowLeft") {
+        if (!event.repeat) changeTab(event.code == "ArrowRight" ? 1 : -1)
+        event.preventDefault()
+    } else if (event.key.toLowerCase() == "l") {
+        if (!event.repeat) autoLearnElement.checked = !autoLearnElement.checked
+    } else if (event.key.toLowerCase() == "p") {
+        if (!event.repeat) autoPromoteElement.checked = !autoPromoteElement.checked
+    }
+})
+
+window.addEventListener("keyup", function(event) {
+    if (event.code == "Space" && !isTypingTarget(event.target)) event.preventDefault()
+})
 
 function setTimeWarping() {
     gameData.timeWarpingEnabled = !gameData.timeWarpingEnabled
@@ -703,9 +845,9 @@ function updateText() {
 
     formatCoins(gameData.coins, document.getElementById("coinDisplay"))
     setSignDisplay()
-    formatCoins(getNet(), document.getElementById("netDisplay"))
-    formatCoins(getIncome(), document.getElementById("incomeDisplay"))
-    formatCoins(getExpense(), document.getElementById("expenseDisplay"))
+    formatCoins(getNet(), document.getElementById("netDisplay"), false)
+    formatCoins(getIncome(), document.getElementById("incomeDisplay"), false)
+    formatCoins(getExpense(), document.getElementById("expenseDisplay"), false)
 
     document.getElementById("happinessDisplay").textContent = getHappiness().toFixed(1)
 
@@ -715,7 +857,7 @@ function updateText() {
     document.getElementById("timeWarpingDisplay").textContent = "x" + gameData.taskData["Time warping"].getEffect().toFixed(2)
     document.getElementById("timeWarpingButton").textContent = gameData.timeWarpingEnabled ? "Disable warp" : "Enable warp"
 
-    document.getElementById("speedBoostDisplay").textContent = "x" + gameData.speedMultiplier
+    byId("speedBoostDisplay").textContent = "x" + gameData.speedMultiplier
     document.querySelectorAll(".speed-btn").forEach(function(button) {
         var active = Number(button.dataset.speed) == gameData.speedMultiplier
         button.classList.toggle("on", active)
@@ -725,15 +867,19 @@ function updateText() {
 
 function setSignDisplay() {
     var signDisplay = document.getElementById("signDisplay")
+    var netDisplay = document.getElementById("netDisplay")
     if (getIncome() > getExpense()) {
         signDisplay.textContent = "+"
         signDisplay.className = "c-income"
+        netDisplay.className = "c-income"
     } else if (getExpense() > getIncome()) {
         signDisplay.textContent = "-"
         signDisplay.className = "c-expense"
+        netDisplay.className = "c-expense"
     } else {
         signDisplay.textContent = ""
         signDisplay.className = "muted"
+        netDisplay.className = ""
     }
 }
 
@@ -812,40 +958,21 @@ function checkSkillSkipped(skill) {
 }
 
 function setSkillWithLowestMaxXp() {
-    var xpDict = {}
+    var best = null
+    var bestTime = Infinity
 
-    for (skillName in gameData.taskData) {
+    for (var skillName in gameData.taskData) {
         var skill = gameData.taskData[skillName]
-        var requirement = gameData.requirements[skillName]
-        if (skill instanceof Skill && requirement.isCompleted() && !checkSkillSkipped(skill)) {
-            xpDict[skill.name] = skill.level //skill.getMaxXp() / skill.getXpGain()
+        if (!(skill instanceof Skill) || !isUnlocked(skillName) || checkSkillSkipped(skill)) continue
+
+        var time = skill.getMaxXp() / skill.getXpGain()
+        if (time < bestTime) {
+            best = skill
+            bestTime = time
         }
     }
 
-    if (Object.keys(xpDict).length === 0) {
-        skillWithLowestMaxXp = gameData.taskData["Concentration"]
-        return
-    }
-
-    var skillName = getKeyOfLowestValueFromDict(xpDict)
-    skillWithLowestMaxXp = gameData.taskData[skillName]
-}
-
-function getKeyOfLowestValueFromDict(dict) {
-    var values = []
-    for (key in dict) {
-        var value = dict[key]
-        values.push(value)
-    }
-
-    values.sort(function(a, b){return a - b})
-
-    for (key in dict) {
-        var value = dict[key]
-        if (value == values[0]) {
-            return key
-        }
-    }
+    skillWithLowestMaxXp = best || gameData.taskData["Concentration"]
 }
 
 function autoLearn() {
@@ -863,18 +990,27 @@ function getDay() {
     return day
 }
 
+const autoPauseDays = 365 * 1000
+
 function increaseDays() {
     var increase = applySpeed(1)
+    if (gameData.settings.autoPause && gameData.days < autoPauseDays && gameData.days + increase >= autoPauseDays) {
+        gameData.paused = true
+        showStatus("Auto-paused at age 1000")
+    }
     gameData.days += increase
 }
 
-function format(number) {
+function format(number, decimals = 1) {
 
     // what tier? (determines SI symbol)
     var tier = Math.log10(number) / 3 | 0;
 
     // if zero, we don't need a suffix
     if(tier == 0) return number;
+
+    // past the end of the suffix table, fall back to scientific notation
+    if (tier >= units.length) return number.toExponential(2);
 
     // get suffix and determine scale
     var suffix = units[tier];
@@ -884,14 +1020,15 @@ function format(number) {
     var scaled = number / scale;
 
     // format number and add suffix
-    return scaled.toFixed(1) + suffix;
+    return scaled.toFixed(decimals) + suffix;
 }
 
-function formatCoins(coins, element) {
+// tint=false leaves the amount in the surrounding text colour (set by the element it sits in)
+function formatCoins(coins, element, tint = true) {
     var amount = Math.floor(coins)
     var span = element.children[0]
     span.textContent = format(amount) + (amount == 1 ? " Spirit Stone" : " Spirit Stones")
-    span.style.color = "var(--stone)"
+    span.style.color = tint ? "var(--stone)" : ""
 }
 
 function getTaskElement(taskName) {
@@ -966,10 +1103,8 @@ function rebirthReset() {
 }
 
 function getLifespan() {
-    var immortality = gameData.taskData["Immortality"]
-    var superImmortality = gameData.taskData["Super immortality"]
-    var lifespan = baseLifespan * immortality.getEffect() * superImmortality.getEffect()
-    return lifespan
+    // Lifespan will come purely from cultivation realms (not implemented yet), so for now it is the base value
+    return baseLifespan
 }
 
 function isAlive() {
@@ -1053,7 +1188,10 @@ function replaceSaveDict(dict, saveDict) {
     }
 }
 
+var resetting = false
+
 function saveGameData() {
+    if (resetting) return
     localStorage.setItem("gameDataSave", JSON.stringify(gameData))
 }
 
@@ -1062,6 +1200,7 @@ function loadGameData() {
 
     if (gameDataSave !== null) {
         replaceSaveDict(gameData, gameDataSave)
+        replaceSaveDict(gameData.settings, gameDataSave.settings)
         replaceSaveDict(gameData.requirements, gameDataSave.requirements)
         replaceSaveDict(gameData.taskData, gameDataSave.taskData)
         replaceSaveDict(gameData.itemData, gameDataSave.itemData)
@@ -1098,6 +1237,8 @@ function update() {
 }
 
 function resetGameData() {
+    resetting = true
+    localStorage.removeItem("gameDataSave")
     localStorage.clear()
     location.reload()
 }
@@ -1120,8 +1261,8 @@ function exportGameData() {
 createAllRows(jobCategories, "jobTable")
 createAllRows(skillCategories, "skillTable")
 createAllRows(itemCategories, "itemTable") 
-createRankList("martialRankList", martialArtsRanks)
-createRankList("cultivationRankList", cultivationRanks)
+runSafely(function() { createRankList("martialRankList", martialArtsRanks) })
+runSafely(function() { createRankList("cultivationRankList", cultivationRanks) })
 
 createData(gameData.taskData, jobBaseData)
 createData(gameData.taskData, skillBaseData)
@@ -1150,44 +1291,42 @@ gameData.requirements = {
     "Beggar": new TaskRequirement([getTaskElement("Beggar")], []),
     "Farmer": new TaskRequirement([getTaskElement("Farmer")], [{task: "Beggar", requirement: 10}]),
     "Fisherman": new TaskRequirement([getTaskElement("Fisherman")], [{task: "Farmer", requirement: 10}]),
-    "Miner": new TaskRequirement([getTaskElement("Miner")], [{task: "Strength", requirement: 10}, {task: "Fisherman", requirement: 10}]),
-    "Blacksmith": new TaskRequirement([getTaskElement("Blacksmith")], [{task: "Strength", requirement: 30}, {task: "Miner", requirement: 10}]),
+    "Miner": new TaskRequirement([getTaskElement("Miner")], [{task: "Conditioning", requirement: 10}, {task: "Fisherman", requirement: 10}]),
+    "Blacksmith": new TaskRequirement([getTaskElement("Blacksmith")], [{task: "Conditioning", requirement: 30}, {task: "Miner", requirement: 10}]),
     "Merchant": new TaskRequirement([getTaskElement("Merchant")], [{task: "Bargaining", requirement: 50}, {task: "Blacksmith", requirement: 10}]),
 
     //Martial Arts Hall
-    "Sweeper": new TaskRequirement([getTaskElement("Sweeper")], [{task: "Strength", requirement: 5}]),
-    "Training Partner": new TaskRequirement([getTaskElement("Training Partner")], [{task: "Strength", requirement: 20}, {task: "Sweeper", requirement: 10}]),
-    "Sparring Partner": new TaskRequirement([getTaskElement("Sparring Partner")], [{task: "Battle tactics", requirement: 40}, {task: "Training Partner", requirement: 10}]),
-    "Hall Guard": new TaskRequirement([getTaskElement("Hall Guard")], [{task: "Strength", requirement: 100}, {task: "Sparring Partner", requirement: 10}]),
-    "Junior Martial Instructor": new TaskRequirement([getTaskElement("Junior Martial Instructor")], [{task: "Battle tactics", requirement: 150}, {task: "Hall Guard", requirement: 10}]),
-    "Head Martial Instructor": new TaskRequirement([getTaskElement("Head Martial Instructor")], [{task: "Strength", requirement: 300}, {task: "Junior Martial Instructor", requirement: 10}]),
-    "First Disciple": new TaskRequirement([getTaskElement("First Disciple")], [{task: "Mana control", requirement: 500}, {task: "Head Martial Instructor", requirement: 10}]),
-    "Dojo Master": new TaskRequirement([getTaskElement("Dojo Master")], [{task: "Mana control", requirement: 1000}, {task: "Battle tactics", requirement: 1000}, {task: "First Disciple", requirement: 10}]),
+    "Sweeper": new TaskRequirement([getTaskElement("Sweeper")], [{task: "Conditioning", requirement: 5}]),
+    "Training Partner": new TaskRequirement([getTaskElement("Training Partner")], [{task: "Conditioning", requirement: 20}, {task: "Sweeper", requirement: 10}]),
+    "Sparring Partner": new TaskRequirement([getTaskElement("Sparring Partner")], [{task: "Strategy", requirement: 40}, {task: "Training Partner", requirement: 10}]),
+    "Hall Guard": new TaskRequirement([getTaskElement("Hall Guard")], [{task: "Conditioning", requirement: 100}, {task: "Sparring Partner", requirement: 10}]),
+    "Junior Martial Instructor": new TaskRequirement([getTaskElement("Junior Martial Instructor")], [{task: "Strategy", requirement: 150}, {task: "Hall Guard", requirement: 10}]),
+    "Head Martial Instructor": new TaskRequirement([getTaskElement("Head Martial Instructor")], [{task: "Conditioning", requirement: 300}, {task: "Junior Martial Instructor", requirement: 10}]),
+    "First Disciple": new TaskRequirement([getTaskElement("First Disciple")], [{task: "Qi Control", requirement: 500}, {task: "Head Martial Instructor", requirement: 10}]),
+    "Dojo Master": new TaskRequirement([getTaskElement("Dojo Master")], [{task: "Qi Control", requirement: 1000}, {task: "Strategy", requirement: 1000}, {task: "First Disciple", requirement: 10}]),
 
     //Sect
     "Outer Disciple": new TaskRequirement([getTaskElement("Outer Disciple")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Inner Disciple": new TaskRequirement([getTaskElement("Inner Disciple")], [{task: "Mana control", requirement: 400}, {task: "Outer Disciple", requirement: 10}]),
-    "Core Disciple": new TaskRequirement([getTaskElement("Core Disciple")], [{task: "Mana control", requirement: 700}, {task: "Inner Disciple", requirement: 10}]),
-    "Elder": new TaskRequirement([getTaskElement("Elder")], [{task: "Mana control", requirement: 1000}, {task: "Core Disciple", requirement: 10}]),
-    "Grand Elder": new TaskRequirement([getTaskElement("Grand Elder")], [{task: "Mana control", requirement: 1500}, {task: "Elder", requirement: 10}]),
-    "Sect Master": new TaskRequirement([getTaskElement("Sect Master")], [{task: "Mana control", requirement: 2000}, {task: "Grand Elder", requirement: 10}]),
+    "Inner Disciple": new TaskRequirement([getTaskElement("Inner Disciple")], [{task: "Qi Control", requirement: 400}, {task: "Outer Disciple", requirement: 10}]),
+    "Core Disciple": new TaskRequirement([getTaskElement("Core Disciple")], [{task: "Qi Control", requirement: 700}, {task: "Inner Disciple", requirement: 10}]),
+    "Elder": new TaskRequirement([getTaskElement("Elder")], [{task: "Qi Control", requirement: 1000}, {task: "Core Disciple", requirement: 10}]),
+    "Grand Elder": new TaskRequirement([getTaskElement("Grand Elder")], [{task: "Qi Control", requirement: 1500}, {task: "Elder", requirement: 10}]),
+    "Sect Master": new TaskRequirement([getTaskElement("Sect Master")], [{task: "Qi Control", requirement: 2000}, {task: "Grand Elder", requirement: 10}]),
 
-    //Fundamentals
+    //Mind and Worldly
     "Concentration": new TaskRequirement([getTaskElement("Concentration")], []),
     "Productivity": new TaskRequirement([getTaskElement("Productivity")], [{task: "Concentration", requirement: 5}]),
     "Bargaining": new TaskRequirement([getTaskElement("Bargaining")], [{task: "Concentration", requirement: 20}]),
     "Meditation": new TaskRequirement([getTaskElement("Meditation")], [{task: "Concentration", requirement: 30}, {task: "Productivity", requirement: 20}]),
 
-    //Combat
-    "Strength": new TaskRequirement([getTaskElement("Strength")], []),
-    "Battle tactics": new TaskRequirement([getTaskElement("Battle tactics")], [{task: "Concentration", requirement: 20}]),
-    "Muscle memory": new TaskRequirement([getTaskElement("Muscle memory")], [{task: "Concentration", requirement: 30}, {task: "Strength", requirement: 30}]),
+    //Martial Skill
+    "Conditioning": new TaskRequirement([getTaskElement("Conditioning")], []),
+    "Strategy": new TaskRequirement([getTaskElement("Strategy")], [{task: "Concentration", requirement: 20}]),
+    "Muscle Memory": new TaskRequirement([getTaskElement("Muscle Memory")], [{task: "Concentration", requirement: 30}, {task: "Conditioning", requirement: 30}]),
 
     //Magic
-    "Mana control": new TaskRequirement([getTaskElement("Mana control")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
-    "Immortality": new TaskRequirement([getTaskElement("Immortality")], [{task: "Inner Disciple", requirement: 10}]),
+    "Qi Control": new TaskRequirement([getTaskElement("Qi Control")], [{task: "Concentration", requirement: 200}, {task: "Meditation", requirement: 200}]),
     "Time warping": new TaskRequirement([getTaskElement("Time warping")], [{task: "Core Disciple", requirement: 10}]),
-    "Super immortality": new TaskRequirement([getTaskElement("Super immortality")], [{task: "Sect Master", requirement: 1000}]),
 
     //Dark magic
     "Dark influence": new EvilRequirement([getTaskElement("Dark influence")], [{requirement: 1}]),
@@ -1225,7 +1364,8 @@ for (key in gameData.requirements) {
 }
 
 loadGameData()
-applyCollapsedCategories()
+runSafely(applyCollapsedCategories)
+runSafely(initUI)
 
 setCustomEffects()
 addMultipliers()
