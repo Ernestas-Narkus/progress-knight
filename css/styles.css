@@ -23,6 +23,8 @@
     --c-happy: #3a5f8f;
     --c-warp: #6b4a99;
     --c-evil: #a8302a;
+    --c-martial: #a8302a;
+    --c-cultivation: #3d4743;
     --stone: #1d6a73;
     --sky: #e9e4d6;
     /* section header tints (shared by both themes, dark text on top) */
@@ -238,3 +240,15 @@ td.collapsed { display: none !important; }
 
 /* Only appears if something goes wrong */
 #errorBanner { position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; padding: 10px 16px; background-color: var(--danger); color: #fff; }
+
+/* Left panel: player card */
+#info.side-panel { width: 320px; }
+.top-controls { display: flex; align-items: center; gap: 12px; }
+.auto-toggles { display: flex; flex-direction: column; gap: 2px; }
+.auto-toggles label { cursor: pointer; }
+.realm-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-martial { color: var(--c-martial); }
+.c-cultivation { color: var(--c-cultivation); }
+.stat-small { font-size: 0.95rem; }
+.stat-caption { font-size: 0.8rem; margin-bottom: 12px; }
+.quick-label { margin-bottom: 4px; }

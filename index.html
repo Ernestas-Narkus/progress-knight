@@ -6,33 +6,40 @@
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/dark.css">
-    <title>Progress Knight</title>
+    <title>Cultivation Journey</title>
 </head>
 <body id="body">
     <div class="w3-margin"> 
-        <h1>Progress Knight</h1>
+        <h1>Cultivation Journey</h1>
         <div class="layout">
-            <div class="panel w3-padding side-panel">
+            <div class="panel w3-padding side-panel" id="info">
                 <span id="deathText">
                     <div class="c-expense" style="font-size: large">Age has caught up to you</div>
                     <div class="sidebar-element muted">Your age has met your lifespan, use the amulet to rebirth before you pass away</div>
                 </span>
 
-                <div class="" style="font-size: large">Age <span id="ageDisplay">14</span> Day <span id="dayDisplay">0</span></div>
-                <div class="sidebar-element muted">Lifespan: <span id="lifespanDisplay">70</span> years</div>
-                
-                <button id="pauseButton" class="w3-button button sidebar-element" onClick="setPause()">Pause</button>
+                <div class="top-controls sidebar-element">
+                    <button id="pauseButton" class="w3-button button" onClick="setPause()">Pause</button>
+                    <span id="automation" class="auto-toggles">
+                        <label>Auto-promote <input type="checkbox" id="autoPromote"></label>
+                        <label>Auto-learn <input type="checkbox" id="autoLearn"></label>
+                    </span>
+                </div>
 
-                <span id="automation" class="inline" style="margin-left: 8px">
-                    <span>
-                        <div class="inline">Auto-promote</div>
-                        <input type="checkbox" class="inline" id="autoPromote">
-                    </span>
-                    </br>
-                    <span>
-                        <div class="inline">Auto-learn</div>
-                        <input type="checkbox" class="inline sidebar-element" id="autoLearn">
-                    </span>
+                <div class="player-card sidebar-element">
+                    <div class="realm-line">Title: <span id="titleDisplay">Placeholder</span></div>
+                    <div style="font-size: large">Age <span id="ageDisplay">14</span> Day <span id="dayDisplay">0</span></div>
+                    <div class="muted">Lifespan: <span id="lifespanDisplay">70</span> years</div>
+                    <div class="realm-line"><span class="c-martial">Martial Realm:</span> <span id="martialRealmDisplay"></span></div>
+                    <div class="realm-line"><span class="c-cultivation">Cultivation:</span> <span id="cultivationRealmDisplay"></span></div>
+                </div>
+
+                <div class="stat-small"><span class="c-happy">State of Mind: </span><span id="happinessDisplay"></span></div>
+                <div class="stat-caption muted">Affects all xp gain</div>
+
+                <span id="evilInfo">
+                    <div class="stat-small"><span class="c-evil">Evil: </span><span id="evilDisplay"></span></div>
+                    <div class="stat-caption muted">Affects dark magic xp gain</div>
                 </span>
 
                 <div style="font-size: large" id="coinDisplay">
@@ -47,25 +54,17 @@
                 </div>
 
                 <span id="quickTaskDisplay">
-                    <div style="width: 100%" class="small-margin inline job progress-bar progressBar">
+                    <div class="quick-label muted">Current job</div>
+                    <div style="width: 100%" class="sidebar-element inline job progress-bar progressBar">
                         <div class="progress-fill progressFill current"></div>
                         <div class="progress-text name">Task</div>
                     </div>
-                    <div class="sidebar-element muted">Current job</div>
 
-                    <div style="width: 100%" class="small-margin skill progress-bar progressBar">
+                    <div class="quick-label muted">Current skill</div>
+                    <div style="width: 100%" class="sidebar-element skill progress-bar progressBar">
                         <div class="progress-fill progressFill current"></div>
-                        <div class="progress-text name">Task</div>              
+                        <div class="progress-text name">Task</div>
                     </div>
-                    <div class="sidebar-element muted">Current skill</div>
-                </span>
-
-                <div style="font-size: large"><span class="c-happy">State of Mind: </span><span id="happinessDisplay"></span></div>
-                <div class="sidebar-element muted">Affects all xp gain</div>
-
-                <span id="evilInfo">
-                    <div style="font-size: large"><span class="c-evil">Evil: </span><span id="evilDisplay"></span></div>
-                    <div class="sidebar-element muted">Affects dark magic xp gain</div>
                 </span>
 
                 <!--
@@ -95,6 +94,8 @@
                         <button class="w3-button button speed-btn" data-speed="25" onClick="setSpeedMultiplier(25)">x25</button>
                     </div>
                 </div>
+
+                <div class="muted status-message" id="statusMessage" role="status" aria-live="polite"></div>
             </div>
 
             <div class="center">
@@ -266,6 +267,21 @@
                             <button class="w3-button button" onClick="setLightDarkMode()">Toggle</button>
                         </li>
                         <li>
+                            <h2>Options</h2>
+                            <div><label><input type="checkbox" id="settingsStickySidebar" onchange="setStickySidebar(this.checked)"> Sticky sidebar</label></div>
+                            <div><label><input type="checkbox" id="settingsAutoPause" onchange="setAutoPause(this.checked)"> Auto-pause when you reach age 1000</label></div>
+                        </li>
+                        <li>
+                            <h2>Shortcuts</h2>
+                            <ul>
+                                <li>Space: pause / resume</li>
+                                <li>Left / Right arrow: previous / next tab</li>
+                                <li>L: toggle auto-learn &nbsp;&middot;&nbsp; P: toggle auto-promote</li>
+                                <li>Alt + 1, 2 or 3: save a loadout (job, skill, property and items)</li>
+                                <li>1, 2 or 3: load that loadout</li>
+                            </ul>
+                        </li>
+                        <li>
                             <h2>Join the discord community!</h2>
                             <a href="https://discord.gg/fTRS4pHGka" target="_blank">
                                 <img src="https://cdn.icon-icons.com/icons2/2108/PNG/512/discord_icon_130958.png" width="100" height="100"></img>
@@ -282,13 +298,13 @@
 
             <div class="panel w3-padding side-panel" id="cultivationPanel">
                 <div class="rank-group">
-                    <div class="rank-title">Martial arts</div>
+                    <div class="rank-title">Martial realms</div>
                     <div class="rank-current" id="martialRankDisplay"></div>
                     <ul class="rank-list" id="martialRankList"></ul>
                 </div>
 
                 <div class="rank-group">
-                    <div class="rank-title">Cultivation</div>
+                    <div class="rank-title">Cultivation realms</div>
                     <div class="rank-current" id="cultivationRankDisplay"></div>
                     <ul class="rank-list" id="cultivationRankList"></ul>
                 </div>

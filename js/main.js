@@ -279,9 +279,19 @@ function updateRankList(listId, displayId, ranks, rankIndex, emptyText) {
     }
 }
 
+// The one-line realm readouts in the player card on the left
+function updateRealmLine(id, realms, index, emptyText) {
+    var element = byId(id)
+    var name = index >= 0 ? realms[index] : emptyText
+    element.textContent = name
+    element.title = name
+}
+
 function updateRanks() {
     updateRankList("martialRankList", "martialRankDisplay", martialArtsRanks, gameData.martialRank, "Untrained")
     updateRankList("cultivationRankList", "cultivationRankDisplay", cultivationRanks, gameData.cultivationRank, "Mortal")
+    updateRealmLine("martialRealmDisplay", martialArtsRanks, gameData.martialRank, "Untrained")
+    updateRealmLine("cultivationRealmDisplay", cultivationRanks, gameData.cultivationRank, "Mortal")
 }
 
 function setCategoryCollapsed(categoryName, collapsed) {
