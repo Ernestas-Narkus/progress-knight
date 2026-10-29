@@ -1,3 +1,5 @@
+"use strict"
+
 class Task {
     constructor(baseData) {
         this.baseData = baseData
